@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Aadhaar Database — Admin | TrustCheck</title>
+<link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.3.3/dist/tailwind.min.css" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<style>
+  * { box-sizing:border-box; }
+  body { font-family:'Segoe UI',sans-serif; background:#f1f5f9; margin:0; min-height:100vh; }
+  .navbar { display:flex; justify-content:space-between; align-items:center; background:linear-gradient(to right,#6a11cb,#2575fc); padding:12px 40px; position:fixed; top:0; width:100%; z-index:1000; box-shadow:0 2px 12px rgba(0,0,0,.2); }
+  .navbar a { color:white; text-decoration:none; font-weight:600; margin-left:20px; font-size:.93em; }
+  .navbar .logo { font-size:1.2em; font-weight:800; letter-spacing:.5px; }
+  .page { max-width:1100px; margin:0 auto; padding:90px 24px 50px; }
+
+  /* Header */
+  .page-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:28px; flex-wrap:wrap; gap:12px; }
+  .page-header h1 { font-size:1.7em; font-weight:800; color:#1e1b4b; margin:0; }
+  .page-header .badge { background:linear-gradient(to right,#6a11cb,#2575fc); color:white; font-size:.8em; font-weight:700; padding:4px 14px; border-radius:20px; }
+
+  /* Flash */
+  .flash { padding:11px 16px; border-radius:10px; margin-bottom:18px; font-size:.9em; font-weight:500; }
+  .flash.success { background:#d1fae5; color:#065f46; border-left:4px solid #10b981; }
+  .flash.danger  { background:#fee2e2; color:#991b1b; border-left:4px solid #ef4444; }
+  .flash.info    { background:#dbeafe; color:#1e40af; border-left:4px solid #3b82f6; }
+  .flash.warning { background:#fef3c7; color:#92400e; border-left:4px solid #f59e0b; }
+
+  /* Add form card */
+  .add-card { background:white; border-radius:16px; box-shadow:0 4px 20px rgba(0,0,0,.07); padding:28px 28px 22px; margin-bottom:28px; }
+  .add-card h2 { font-size:1.1em; font-weight:700; color:#374151; margin:0 0 18px; display:flex; align-items:center; gap:8px; }
+  .form-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(160px,1fr)); gap:14px; }
+  .form-grid input, .form-grid select { width:100%; padding:9px 12px; border:1.5px solid #e5e7eb; border-radius:8px; font-size:.88em; outline:none; transition:border .2s; background:white; }
+  .form-grid input:focus, .form-grid select:focus { border-color:#6a11cb; box-shadow:0 0 0 3px rgba(106,17,203,.08); }
+  .form-grid label { font-size:.75em; font-weight:600; color:#6b7280; display:block; margin-bottom:4px; text-transform:uppercase; letter-spacing:.5px; }
+  .btn-add { margin-top:16px; padding:10px 28px; background:linear-gradient(to right,#6a11cb,#2575fc); color:white; border:none; border-radius:8px; font-size:.92em; font-weight:700; cursor:pointer; transition:opacity .2s; }
+  .btn-add:hover { opacity:.88; }
+
+  /* Table */
+  .table-card { background:white; border-radius:16px; box-shadow:0 4px 20px rgba(0,0,0,.07); overflow:hidden; }
+  .table-card .table-header { padding:18px 24px; border-bottom:1px solid #f3f4f6; display:flex; justify-content:space-between; align-items:center; }
+  .table-card .table-header h2 { font-size:1.05em; font-weight:700; color:#374151; margin:0; }
+  .table-card .count { font-size:.82em; color:#9ca3af; }
+  table { width:100%; border-collapse:collapse; }
+  thead th { background:#f8fafc; padding:11px 16px; text-align:left; font-size:.78em; font-weight:700; color:#6b7280; text-transform:uppercase; letter-spacing:.6px; border-bottom:1px solid #f1f5f9; }
+  tbody tr { border-bottom:1px solid #f9fafb; transition:background .15s; }
+  tbody tr:last-child { border-bottom:none; }
+  tbody tr:hover { background:#fafbff; }
+  tbody td { padding:13px 16px; font-size:.9em; color:#374151; }
+  .aadhaar-num { font-family:monospace; font-size:.88em; background:#f1f5f9; padding:3px 8px; border-radius:5px; color:#1e1b4b; font-weight:600; }
+  .mobile-num { font-family:monospace; font-size:.88em; color:#2575fc; font-weight:600; }
+  .gender-badge { display:inline-block; padding:2px 10px; border-radius:12px; font-size:.78em; font-weight:700; }
+  .gender-badge.Male   { background:#dbeafe; color:#1d4ed8; }
+  .gender-badge.Female { background:#fce7f3; color:#be185d; }
+  .gender-badge.Other  { background:#f3e8ff; color:#7c3aed; }
+  .btn-delete { background:#fee2e2; color:#dc2626; border:none; padding:5px 14px; border-radius:7px; font-size:.8em; font-weight:700; cursor:pointer; transition:background .2s; }
+  .btn-delete:hover { background:#fca5a5; }
+  .empty-state { text-align:center; padding:50px 20px; color:#9ca3af; }
+  .empty-state .icon { font-size:3em; margin-bottom:10px; }
+  .search-wrap { padding:14px 24px; border-bottom:1px solid #f3f4f6; }
+  .search-wrap input { width:100%; max-width:320px; padding:8px 14px; border:1.5px solid #e5e7eb; border-radius:8px; font-size:.88em; outline:none; }
+  .search-wrap input:focus { border-color:#6a11cb; }
+</style>
+</head>
+<body>
+
+<div class="navbar">
+  <a href="/home" class="logo">&#x1F6E1; TrustCheck</a>
+  <div>
+    <a href="/dashboard">Dashboard</a>
+    <a href="/admin/aadhaar" style="background:rgba(255,255,255,.15);padding:5px 14px;border-radius:20px;">Aadhaar DB</a>
+    <a href="/logout">Logout</a>
+  </div>
+</div>
+
+<div class="page">
+
+  <div class="page-header">
+    <h1>&#x1F5C4; Aadhaar Database</h1>
+    <span class="badge">{{ records|length }} Records</span>
+  </div>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for cat, msg in messages %}
+      <div class="flash {{ cat }}">{{ msg }}</div>
+    {% endfor %}
+  {% endwith %}
+
+  <!-- Add New Record -->
+  <div class="add-card">
+    <h2>&#x2795; Add New Aadhaar Record</h2>
+    <form method="POST" action="/admin/aadhaar/add">
+      <div class="form-grid">
+        <div>
+          <label>Aadhaar Number</label>
+          <input type="text" name="aadhaar_number" placeholder="12-digit number" maxlength="12" pattern="\d{12}" required>
+        </div>
+        <div>
+          <label>Full Name</label>
+          <input type="text" name="name" placeholder="As per Aadhaar" required>
+        </div>
+        <div>
+          <label>Mobile Number</label>
+          <input type="text" name="mobile" placeholder="10-digit mobile" maxlength="10" pattern="\d{10}" required>
+        </div>
+        <div>
+          <label>State</label>
+          <input type="text" name="state" placeholder="e.g. Karnataka" required>
+        </div>
+        <div>
+          <label>Gender</label>
+          <select name="gender" required>
+            <option value="">Select</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn-add" type="submit">&#x2795; Add Record</button>
+    </form>
+  </div>
+
+  <!-- Records Table -->
+  <div class="table-card">
+    <div class="table-header">
+      <h2>&#x1F4CB; All Aadhaar Records</h2>
+      <span class="count">{{ records|length }} total entries</span>
+    </div>
+    <div class="search-wrap">
+      <input type="text" id="searchInput" placeholder="&#x1F50D; Search by name, Aadhaar or mobile..." oninput="filterTable()">
+    </div>
+
+    {% if records %}
+    <table id="aadhaarTable">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Aadhaar Number</th>
+          <th>Full Name</th>
+          <th>Mobile</th>
+          <th>State</th>
+          <th>Gender</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in records %}
+        <tr>
+          <td style="color:#9ca3af;">{{ loop.index }}</td>
+          <td><span class="aadhaar-num">{{ r.aadhaar_number }}</span></td>
+          <td><b>{{ r.name }}</b></td>
+          <td><span class="mobile-num">{{ r.mobile }}</span></td>
+          <td>{{ r.state }}</td>
+          <td><span class="gender-badge {{ r.gender }}">{{ r.gender }}</span></td>
+          <td>
+            <form method="POST" action="/admin/aadhaar/delete/{{ r.id }}" onsubmit="return confirm('Delete record for {{ r.name }}?')">
+              <button class="btn-delete" type="submit">&#x1F5D1; Delete</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div class="empty-state">
+      <div class="icon">&#x1F4C2;</div>
+      <p>No Aadhaar records found. Add one above.</p>
+    </div>
+    {% endif %}
+  </div>
+
+</div>
+
+<script>
+function filterTable() {
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  document.querySelectorAll('#aadhaarTable tbody tr').forEach(row => {
+    row.style.display = row.textContent.toLowerCase().includes(q) ? '' : 'none';
+  });
+}
+</script>
+</body>
+</html>

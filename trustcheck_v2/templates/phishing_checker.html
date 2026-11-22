@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Phishing URL Checker — TrustCheck</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #080810; --surface: #0e0e18; --surface2: #13131f; --surface3: #191926;
+  --border: rgba(255,255,255,0.08); --border2: rgba(255,255,255,0.12);
+  --text: #f2f2fa; --muted: rgba(255,255,255,0.45);
+  --accent: #7c6fe0; --accent2: #2575fc;
+  --green: #10b981; --red: #ef4444; --yellow: #f59e0b;
+}
+body {
+  background: var(--bg); color: var(--text);
+  font-family: 'Geist', sans-serif; overflow-x: hidden;
+  -webkit-font-smoothing: antialiased; min-height: 100vh;
+}
+body::after {
+  content: ''; position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none; z-index: 9999; opacity: 0.35;
+}
+.navbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 2rem; height: 62px; position: fixed; top: 0; left: 0; right: 0;
+  background: rgba(8,8,16,0.85); backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border); z-index: 200;
+}
+.logo { display: flex; align-items: center; gap: 8px; text-decoration: none; }
+.logo-name { font-size: 1.3rem; font-weight: 700; color: white; }
+.nav-right { display: flex; align-items: center; gap: 8px; }
+.nav-link {
+  color: var(--muted); text-decoration: none; font-size: 0.875rem;
+  padding: 6px 14px; border-radius: 8px; border: 1px solid var(--border); transition: all 0.2s;
+}
+.nav-link:hover { color: white; border-color: var(--border2); background: rgba(255,255,255,0.05); }
+
+.page { padding: 100px 2rem 4rem; max-width: 980px; margin: 0 auto; }
+.back-link {
+  display: inline-flex; align-items: center; gap: 6px;
+  color: var(--muted); text-decoration: none; font-size: 0.85rem;
+  margin-bottom: 2rem; transition: color 0.2s;
+}
+.back-link:hover { color: var(--text); }
+
+.page-hero { margin-bottom: 2.5rem; }
+.hero-eyebrow {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 0.72rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--accent2); background: rgba(37,117,252,0.1); border: 1px solid rgba(37,117,252,0.2);
+  padding: 4px 12px; border-radius: 20px; margin-bottom: 1rem;
+}
+.page-title { font-size: clamp(1.8rem, 3vw, 2.4rem); font-weight: 700; line-height: 1.2; margin-bottom: 0.75rem; }
+.page-title em { font-style: italic; font-family: 'Instrument Serif', serif; color: var(--accent2); }
+.page-sub { font-size: 0.95rem; color: var(--muted); line-height: 1.6; max-width: 580px; }
+
+.main-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 24px; padding: 2rem; margin-bottom: 1.5rem;
+}
+.card-header {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border);
+}
+.card-icon {
+  width: 38px; height: 38px; border-radius: 12px;
+  background: rgba(37,117,252,0.15); border: 1px solid rgba(37,117,252,0.25);
+  display: flex; align-items: center; justify-content: center; font-size: 1rem;
+}
+.card-title { font-size: 1rem; font-weight: 600; }
+.card-subtitle { font-size: 0.8rem; color: var(--muted); margin-top: 2px; }
+
+label { display: block; font-size: 0.78rem; font-weight: 500; color: var(--muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.07em; }
+.input-wrap { position: relative; }
+.input-wrap .input-icon {
+  position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+  font-size: 0.9rem; color: var(--muted); pointer-events: none;
+}
+input[type="text"] {
+  width: 100%; padding: 13px 14px 13px 40px;
+  border-radius: 12px; background: var(--surface2);
+  border: 1px solid var(--border2); color: var(--text);
+  font-family: 'Geist', sans-serif; font-size: 0.95rem;
+  transition: border-color 0.2s, box-shadow 0.2s; outline: none;
+}
+input[type="text"]:focus { border-color: var(--accent2); box-shadow: 0 0 0 3px rgba(37,117,252,0.15); }
+input::placeholder { color: rgba(255,255,255,0.2); }
+
+.btn-check {
+  width: 100%; margin-top: 1.25rem; padding: 13px;
+  background: linear-gradient(135deg, #2575fc, #5b9dff);
+  color: white; border: none; border-radius: 12px;
+  font-family: 'Geist', sans-serif; font-size: 0.95rem; font-weight: 600;
+  cursor: pointer; transition: opacity 0.2s, transform 0.2s;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.btn-check:hover { opacity: 0.9; transform: translateY(-1px); }
+.btn-check:disabled { opacity: 0.6; pointer-events: none; }
+
+/* ── PIPELINE ────────────────────────────── */
+#pipelineSection { display: none; margin-top: 2rem; }
+.pipeline-header {
+  display: flex; align-items: center; gap: 8px; margin-bottom: 1rem;
+  font-size: 0.75rem; font-weight: 600; color: var(--muted);
+  text-transform: uppercase; letter-spacing: 0.1em;
+}
+.pipeline-track { display: flex; flex-direction: column; position: relative; }
+.pipeline-track::before {
+  content: ''; position: absolute; left: 17px; top: 24px; bottom: 24px;
+  width: 2px; background: linear-gradient(to bottom, rgba(37,117,252,0.35), rgba(124,111,224,0.15));
+}
+.pipeline-step {
+  display: flex; align-items: flex-start; gap: 12px; padding: 9px 0;
+  position: relative; opacity: 0; transform: translateX(-8px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+.pipeline-step.visible { opacity: 1; transform: translateX(0); }
+.step-dot {
+  width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0; z-index: 1;
+  display: flex; align-items: center; justify-content: center; font-size: 0.85rem;
+  border: 2px solid var(--border2); background: var(--surface2); transition: all 0.3s;
+}
+.step-dot.running { background: rgba(37,117,252,0.2); border-color: var(--accent2); animation: dotPulse 1s infinite; }
+.step-dot.ok { background: rgba(16,185,129,0.12); border-color: var(--green); color: var(--green); }
+.step-dot.warn { background: rgba(245,158,11,0.12); border-color: var(--yellow); color: var(--yellow); }
+.step-dot.danger, .step-dot.phishing { background: rgba(239,68,68,0.12); border-color: var(--red); color: var(--red); }
+@keyframes dotPulse {
+  0%,100% { box-shadow: 0 0 0 0 rgba(37,117,252,0.4); }
+  50% { box-shadow: 0 0 0 5px rgba(37,117,252,0); }
+}
+.step-body { flex: 1; padding-top: 7px; }
+.step-name { font-size: 0.875rem; font-weight: 600; }
+.step-detail { font-size: 0.77rem; color: var(--muted); margin-top: 2px; word-break: break-all; max-width: 500px; }
+.step-detail.ok { color: rgba(16,185,129,0.85); }
+.step-detail.warn { color: rgba(245,158,11,0.85); }
+.step-detail.danger, .step-detail.phishing { color: rgba(239,68,68,0.85); }
+
+/* ── RESULT ──────────────────────────────── */
+#resultSection { display: none; margin-top: 1.75rem; }
+@keyframes fadeUp { from { opacity:0; transform:translateY(12px) } to { opacity:1; transform:translateY(0) } }
+
+.result-banner {
+  border-radius: 20px; padding: 1.75rem 2rem;
+  display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap;
+  animation: fadeUp 0.4s ease;
+}
+.result-banner.safe { background: rgba(16,185,129,0.07); border: 1px solid rgba(16,185,129,0.25); }
+.result-banner.phishing { background: rgba(239,68,68,0.07); border: 1px solid rgba(239,68,68,0.25); }
+.result-banner.suspicious { background: rgba(245,158,11,0.07); border: 1px solid rgba(245,158,11,0.25); }
+.banner-icon { font-size: 2.8rem; flex-shrink: 0; }
+.banner-body { flex: 1; }
+.banner-verdict-label { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 4px; }
+.banner-verdict { font-size: 1.4rem; font-weight: 700; }
+.banner-verdict.safe { color: var(--green); }
+.banner-verdict.phishing { color: var(--red); }
+.banner-verdict.suspicious { color: var(--yellow); }
+.banner-url { font-size: 0.77rem; color: var(--muted); margin-top: 6px; word-break: break-all; }
+.score-ring-wrap { flex-shrink: 0; text-align: center; }
+.score-lbl { font-size: 0.65rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 2px; }
+
+.score-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.75rem; margin-top: 1.25rem; }
+@media(max-width:580px) { .score-grid { grid-template-columns: 1fr 1fr; } }
+.score-card {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 14px; padding: 1rem; text-align: center;
+}
+.sc-label { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 6px; }
+.sc-val { font-size: 1.1rem; font-weight: 700; }
+.sc-val.red { color: var(--red); } .sc-val.yellow { color: var(--yellow); } .sc-val.green { color: var(--green); }
+
+.info-row { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 1.25rem; }
+.info-pill {
+  display: flex; align-items: center; gap: 6px;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 10px; padding: 6px 12px; font-size: 0.78rem; color: var(--muted);
+}
+.info-pill strong { color: var(--text); }
+.info-pill.warn strong { color: var(--yellow); }
+.info-pill.danger strong { color: var(--red); }
+
+.signals-row { margin-top: 1.25rem; }
+.signals-title { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; }
+.signal-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.signal-tag {
+  font-size: 0.75rem; padding: 4px 11px; border-radius: 20px;
+  background: rgba(255,255,255,0.05); border: 1px solid var(--border2); color: var(--muted);
+}
+
+.shap-section { margin-top: 1.5rem; }
+.shap-title { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 10px; }
+.shap-bar-row { display: flex; align-items: center; gap: 8px; margin-bottom: 7px; }
+.shap-feat { font-size: 0.78rem; color: var(--text); width: 155px; flex-shrink: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.shap-bar-wrap { flex: 1; background: var(--surface2); border-radius: 4px; height: 8px; overflow: hidden; }
+.shap-bar-fill { height: 100%; border-radius: 4px; transition: width 0.6s ease; }
+.shap-bar-fill.pos { background: linear-gradient(90deg,#ef4444,#f87171); }
+.shap-bar-fill.neg { background: linear-gradient(90deg,#10b981,#34d399); }
+.shap-impact { font-size: 0.72rem; color: var(--muted); width: 50px; text-align: right; flex-shrink: 0; }
+
+.history-link {
+  display: flex; align-items: center; justify-content: space-between;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 16px; padding: 1.25rem 1.5rem;
+  text-decoration: none; color: var(--text); transition: border-color 0.2s, background 0.2s; margin-top: 1.5rem;
+}
+.history-link:hover { border-color: var(--border2); background: rgba(255,255,255,0.02); }
+.history-link-left { display: flex; align-items: center; gap: 12px; }
+.history-icon {
+  width: 36px; height: 36px; border-radius: 10px;
+  background: rgba(124,111,224,0.15); border: 1px solid rgba(124,111,224,0.25);
+  display: flex; align-items: center; justify-content: center; font-size: 0.9rem;
+}
+.ht-title { font-size: 0.9rem; font-weight: 600; }
+.ht-sub { font-size: 0.78rem; color: var(--muted); margin-top: 2px; }
+</style>
+</head>
+<body>
+<nav class="navbar">
+  <a href="/dashboard" class="logo"><span>🛡️</span><span class="logo-name">TrustCheck</span></a>
+  <div class="nav-right">
+    <a href="/dashboard" class="nav-link">Dashboard</a>
+    <a href="{{ url_for('logout') }}" class="nav-link">Logout</a>
+  </div>
+</nav>
+
+<div class="page">
+  <a href="/dashboard" class="back-link">← Back to Dashboard</a>
+
+  <div class="page-hero">
+    <div class="hero-eyebrow">⚡ Pipeline Scanner</div>
+    <h1 class="page-title">URL Phishing<br><em>Scanner</em></h1>
+    <p class="page-sub">Runs a full 10-step analysis pipeline — 10,000+ domain blacklist, IP-logger detection, short URL expansion, domain age lookup, external APIs (VirusTotal · Google GSB · URLScan.io), Random Forest ML, SHAP explainability, and Dynamic Risk Scoring.</p>
+  </div>
+
+  <div class="main-card">
+    <div class="card-header">
+      <div class="card-icon">🔍</div>
+      <div>
+        <div class="card-title">Enter URL to Scan</div>
+        <div class="card-subtitle">HTTP, HTTPS, or shortened links — all supported</div>
+      </div>
+    </div>
+
+    <label for="urlInput">URL</label>
+    <div class="input-wrap">
+      <span class="input-icon">🌐</span>
+      <input id="urlInput" type="text" placeholder="https://example.com or bit.ly/abc123">
+    </div>
+    <button onclick="runScan()" class="btn-check" id="checkBtn">
+      <span>🚀</span> Run Full Scan
+    </button>
+
+    <!-- PIPELINE TRACK -->
+    <div id="pipelineSection">
+      <div class="pipeline-header"><span>⚡</span> Scan Pipeline</div>
+      <div class="pipeline-track" id="pipelineTrack"></div>
+    </div>
+
+    <!-- RESULT -->
+    <div id="resultSection">
+      <div id="resultBanner" class="result-banner">
+        <div class="banner-icon" id="bannerIcon"></div>
+        <div class="banner-body">
+          <div class="banner-verdict-label">Final Verdict</div>
+          <div class="banner-verdict" id="bannerVerdict"></div>
+          <div class="banner-url" id="bannerUrl"></div>
+        </div>
+        <div class="score-ring-wrap">
+          <svg width="76" height="76" viewBox="0 0 76 76">
+            <circle cx="38" cy="38" r="30" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="7"/>
+            <circle id="scoreArc" cx="38" cy="38" r="30" fill="none" stroke="#2575fc"
+              stroke-width="7" stroke-linecap="round"
+              stroke-dasharray="188.5" stroke-dashoffset="188.5"
+              transform="rotate(-90 38 38)" style="transition:stroke-dashoffset 1s ease,stroke 0.5s;"/>
+            <text x="38" y="43" text-anchor="middle" font-size="14" font-weight="700" fill="white" id="scoreText">0</text>
+          </svg>
+          <div class="score-lbl">Risk Score</div>
+        </div>
+      </div>
+
+      <div class="score-grid">
+        <div class="score-card"><div class="sc-label">VirusTotal</div><div class="sc-val" id="scVt">—</div></div>
+        <div class="score-card"><div class="sc-label">Google GSB</div><div class="sc-val" id="scGsb">—</div></div>
+        <div class="score-card"><div class="sc-label">ML Model</div><div class="sc-val" id="scMl">—</div></div>
+        <div class="score-card"><div class="sc-label">Domain Age</div><div class="sc-val" id="scAge">—</div></div>
+      </div>
+
+      <div class="info-row" id="infoPills"></div>
+
+      <div class="signals-row" id="signalsRow" style="display:none">
+        <div class="signals-title">⚠️ Detected Signals</div>
+        <div class="signal-tags" id="signalTags"></div>
+      </div>
+
+      <div class="shap-section" id="shapSection" style="display:none">
+        <div class="shap-title">🧠 ML Feature Contributions (SHAP)</div>
+        <div id="shapBars"></div>
+      </div>
+    </div>
+  </div>
+
+  <a href="/phishing-history" class="history-link">
+    <div class="history-link-left">
+      <div class="history-icon">📜</div>
+      <div>
+        <div class="ht-title">View Phishing History</div>
+        <div class="ht-sub">Browse all previously scanned URLs and their verdicts</div>
+      </div>
+    </div>
+    <span style="color:var(--muted)">→</span>
+  </a>
+</div>
+
+<script>
+const PIPELINE_DEFS = [
+  { name: 'Normalize URL',                              icon: '🌐' },
+  { name: 'Extract Domain',                            icon: '🔎' },
+  { name: 'Blacklist Check',                           icon: '🚫' },
+  { name: 'Expand Short URL',                          icon: '🔗' },
+  { name: 'Check Domain Age',                          icon: '📅' },
+  { name: 'External API Checks (VT / GSB / URLScan)', icon: '🌍' },
+  { name: 'AI/ML Model (Random Forest — 15 features)', icon: '🤖' },
+  { name: 'SHAP Explanation',                          icon: '🧠' },
+  { name: 'Dynamic Risk Scoring (DRS)',                icon: '📊' },
+  { name: 'Final Classification',                      icon: '🏁' },
+];
+
+function buildPipelineShell() {
+  const track = document.getElementById('pipelineTrack');
+  track.innerHTML = '';
+  PIPELINE_DEFS.forEach((def, i) => {
+    const el = document.createElement('div');
+    el.className = 'pipeline-step';
+    el.id = `ps-${i}`;
+    el.innerHTML = `
+      <div class="step-dot pending" id="dot-${i}">${def.icon}</div>
+      <div class="step-body">
+        <div class="step-name">${def.name}</div>
+        <div class="step-detail" id="det-${i}">Waiting…</div>
+      </div>`;
+    track.appendChild(el);
+    setTimeout(() => el.classList.add('visible'), i * 45);
+  });
+}
+
+function applySteps(steps) {
+  steps.forEach((s, i) => {
+    setTimeout(() => {
+      const dot = document.getElementById(`dot-${i}`);
+      const det = document.getElementById(`det-${i}`);
+      if (!dot || !det) return;
+      const st = s.status || 'ok';
+      dot.className = `step-dot ${st}`;
+      dot.textContent = (st === 'ok') ? '✓' : (st === 'warn') ? '!' : '✕';
+      det.textContent = s.detail || '';
+      det.className = `step-detail ${st}`;
+    }, i * 200);
+  });
+}
+
+function scoreColor(v) { return v >= 70 ? '#ef4444' : v >= 40 ? '#f59e0b' : '#10b981'; }
+function valCls(v)    { return v >= 70 ? 'red' : v >= 40 ? 'yellow' : 'green'; }
+
+function animateArc(score) {
+  const arc = document.getElementById('scoreArc');
+  arc.style.stroke = scoreColor(score);
+  arc.style.strokeDashoffset = 188.5 - (score / 100) * 188.5;
+  document.getElementById('scoreText').textContent = score;
+}
+
+async function runScan() {
+  const url = document.getElementById('urlInput').value.trim();
+  if (!url) { alert('Please enter a URL!'); return; }
+
+  const btn = document.getElementById('checkBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span>⏳</span> Scanning…';
+
+  document.getElementById('resultSection').style.display = 'none';
+  document.getElementById('pipelineSection').style.display = 'block';
+  buildPipelineShell();
+
+  // Show first step as running immediately
+  setTimeout(() => {
+    const d = document.getElementById('dot-0');
+    if (d) { d.className = 'step-dot running'; d.textContent = '🌐'; }
+    const det = document.getElementById('det-0');
+    if (det) det.textContent = url.substring(0, 65) + (url.length > 65 ? '…' : '');
+  }, 200);
+
+  try {
+    const resp = await fetch('/phishing-check', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url, pipeline: true })
+    });
+    const data = await resp.json();
+
+    const stepsLen = (data.pipeline_steps || []).length || 8;
+    if (data.pipeline_steps) applySteps(data.pipeline_steps);
+
+    setTimeout(() => showResult(data), stepsLen * 200 + 400);
+  } catch (err) {
+    alert('❌ Error scanning URL. Please try again.'); console.error(err);
+  }
+
+  btn.disabled = false;
+  btn.innerHTML = '<span>🚀</span> Run Full Scan';
+}
+
+function showResult(data) {
+  const section = document.getElementById('resultSection');
+  section.style.display = 'block';
+
+  const cls = data.verdict_cls || (
+    data.verdict.toLowerCase().includes('phish') ? 'phishing' :
+    data.verdict.toLowerCase().includes('safe') ? 'safe' : 'suspicious');
+  const icon = data.verdict_icon || (cls === 'phishing' ? '🚨' : cls === 'safe' ? '✅' : '⚠️');
+
+  document.getElementById('resultBanner').className = `result-banner ${cls}`;
+  document.getElementById('bannerIcon').textContent = icon;
+  const vd = document.getElementById('bannerVerdict');
+  vd.className = `banner-verdict ${cls}`; vd.textContent = data.verdict;
+  document.getElementById('bannerUrl').textContent =
+    (data.expanded ? '🔗 Expanded → ' : '') + (data.url || '');
+
+  animateArc(data.score || 0);
+
+  const setCard = (id, val, c) => {
+    const el = document.getElementById(id);
+    el.textContent = val !== undefined && val !== null ? val : '—';
+    el.className = `sc-val ${c}`;
+  };
+  setCard('scVt',  data.vt_score,  valCls(data.vt_score || 0));
+  setCard('scGsb', data.gsb_score, valCls(data.gsb_score || 0));
+  setCard('scMl',  data.ml_score !== undefined ? data.ml_score + '%' : '—', valCls(data.ml_score || 0));
+  const age = data.domain_age_days;
+  setCard('scAge', age != null ? age + 'd' : '?', age != null ? (age < 90 ? 'red' : age < 365 ? 'yellow' : 'green') : '');
+
+  // Info pills
+  const pills = document.getElementById('infoPills');
+  pills.innerHTML = '';
+  const pill = (lbl, val, c='') => {
+    const p = document.createElement('div');
+    p.className = `info-pill ${c}`;
+    p.innerHTML = `${lbl}: <strong>${val}</strong>`;
+    pills.appendChild(p);
+  };
+  pill('Domain', data.domain || '—');
+  if (data.blacklisted) pill('Blacklist', '🔴 HIT', 'danger');
+  if (data.expanded) pill('Short URL', '🔗 Expanded', 'warn');
+  if (age != null) pill('Domain Age', age + ' days', age < 90 ? 'warn' : '');
+  pill('ML Model', data.model_loaded ? '✅ Loaded' : '❌ Missing');
+
+  // Signals
+  if (data.signals && data.signals.length) {
+    document.getElementById('signalsRow').style.display = '';
+    document.getElementById('signalTags').innerHTML =
+      data.signals.map(s => `<span class="signal-tag">${s}</span>`).join('');
+  } else {
+    document.getElementById('signalsRow').style.display = 'none';
+  }
+
+  // SHAP bars
+  if (data.shap_explanations && data.shap_explanations.length) {
+    document.getElementById('shapSection').style.display = '';
+    const maxImp = Math.max(...data.shap_explanations.map(x => Math.abs(x.impact)), 0.001);
+    document.getElementById('shapBars').innerHTML = data.shap_explanations.map(x => {
+      const pct = Math.round((Math.abs(x.impact) / maxImp) * 100);
+      return `<div class="shap-bar-row">
+        <div class="shap-feat" title="${x.feature}">${x.feature}</div>
+        <div class="shap-bar-wrap"><div class="shap-bar-fill ${x.impact > 0 ? 'pos' : 'neg'}" style="width:${pct}%"></div></div>
+        <div class="shap-impact">${x.impact > 0 ? '+' : ''}${x.impact.toFixed(3)}</div>
+      </div>`;
+    }).join('');
+  } else {
+    document.getElementById('shapSection').style.display = 'none';
+  }
+}
+
+document.getElementById('urlInput').addEventListener('keypress', e => {
+  if (e.key === 'Enter') runScan();
+});
+</script>
+</body>
+</html>

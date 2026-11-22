@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Identity Confirmed — TrustCheck</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>:root {
+  --bg:#080810; --surface:#0e0e18; --surface2:#13131f;
+  --border:rgba(255,255,255,0.08); --border2:rgba(255,255,255,0.13);
+  --accent:#7c6fe0; --accent2:#2575fc; --al:#a78bfa;
+  --text:#f2f2fa; --muted:rgba(242,242,250,0.45);
+  --green:#10b981; --red:#ef4444; --yellow:#f59e0b; --blue:#3b82f6;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Geist',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased;}
+.tc-bg{position:fixed;inset:0;pointer-events:none;z-index:0;}
+.tc-orb{position:absolute;border-radius:50%;filter:blur(90px);opacity:0.13;}
+.tc-orb-1{width:500px;height:500px;background:#7c6fe0;top:-150px;left:-100px;animation:tcFloat 9s ease-in-out infinite;}
+.tc-orb-2{width:350px;height:350px;background:#2575fc;bottom:-80px;right:-80px;animation:tcFloat 11s ease-in-out infinite reverse;}
+.tc-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(124,111,224,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(124,111,224,0.04) 1px,transparent 1px);background-size:52px 52px;animation:tcGrid 25s linear infinite;}
+@keyframes tcFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-22px)}}
+@keyframes tcGrid{from{transform:translateY(0)}to{transform:translateY(52px)}}
+@keyframes tcFadeUp{from{opacity:0;transform:translateY(22px) scale(0.97)}to{opacity:1;transform:none}}
+@keyframes tcPop{from{opacity:0;transform:scale(0.82)}to{opacity:1;transform:scale(1)}}
+@keyframes tcCheck{from{stroke-dashoffset:30}to{stroke-dashoffset:0}}
+.tc-nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 32px;height:60px;background:rgba(8,8,16,0.85);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);}
+.tc-nav-logo{display:flex;align-items:center;font-family:"Calibri";text-decoration:none;color:var(--text);font-weight:800;font-size:1.4rem;text-shadow:0 0 10px rgba(255,255,255,0.8),0 0 20px rgba(255,255,255,0.6);}
+.tc-nav-btn{background:white;color:#080810;font-size:0.82rem;font-weight:600;padding:6px 16px;border-radius:8px;text-decoration:none;}
+.tc-main{position:relative;z-index:1;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:80px 20px 40px;}
+.tc-card{background:rgba(14,14,24,0.92);backdrop-filter:blur(24px);border:1px solid var(--border2);border-radius:20px;padding:40px 36px;width:100%;max-width:450px;box-shadow:0 0 0 1px rgba(124,111,224,0.07),0 40px 80px rgba(0,0,0,0.6);position:relative;animation:tcFadeUp 0.55s cubic-bezier(.22,.68,0,1.2) both;}
+.tc-card::before,.tc-card::after{content:'';position:absolute;width:14px;height:14px;border-color:rgba(124,111,224,0.4);border-style:solid;}
+.tc-card::before{top:-1px;left:-1px;border-width:2px 0 0 2px;border-radius:2px 0 0 0;}
+.tc-card::after{bottom:-1px;right:-1px;border-width:0 2px 2px 0;border-radius:0 0 2px 0;}
+.tc-step-bar{display:flex;gap:6px;margin-bottom:28px;}
+.tc-step-seg{flex:1;height:4px;border-radius:4px;background:rgba(255,255,255,0.08);}
+.tc-step-seg.done{background:linear-gradient(90deg,var(--accent),var(--accent2));}
+.tc-center{text-align:center;}
+/* verified badge */
+.tc-verified-badge{display:inline-flex;align-items:center;gap:7px;background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.28);color:#6ee7b7;font-size:0.76rem;font-weight:700;padding:5px 13px;border-radius:20px;letter-spacing:0.04em;margin-bottom:18px;}
+/* avatar */
+.tc-avatar{width:68px;height:68px;border-radius:50%;background:linear-gradient(135deg,#7c6fe0,#2575fc);display:flex;align-items:center;justify-content:center;font-size:1.8rem;font-weight:700;color:white;margin:0 auto 14px;box-shadow:0 0 0 4px rgba(124,111,224,0.18),0 0 30px rgba(124,111,224,0.25);animation:tcPop 0.5s cubic-bezier(.22,.68,0,1.4) 0.2s both;}
+.tc-name{font-size:1.55rem;font-weight:700;color:white;letter-spacing:-0.4px;margin-bottom:3px;}
+.tc-sub{font-size:0.8rem;color:var(--muted);margin-bottom:22px;}
+/* detail cards */
+.tc-details-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:20px;}
+.tc-detail-card{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:11px;padding:13px 14px;display:flex;flex-direction:column;gap:3px;transition:border-color 0.2s;}
+.tc-detail-card:hover{border-color:rgba(124,111,224,0.25);}
+.tc-detail-card.full{grid-column:1/-1;}
+.tc-detail-label{font-size:0.63rem;font-weight:600;text-transform:uppercase;letter-spacing:0.1em;color:rgba(255,255,255,0.28);}
+.tc-detail-value{font-size:0.92rem;font-weight:600;color:var(--text);}
+.tc-detail-icon{font-size:1rem;margin-bottom:3px;}
+.tc-gender-chip{display:inline-flex;align-items:center;gap:5px;background:rgba(124,111,224,0.12);border:1px solid rgba(124,111,224,0.25);color:var(--al);font-size:0.8rem;font-weight:600;padding:2px 10px;border-radius:20px;}
+.tc-mobile-masked{font-size:0.92rem;font-weight:600;color:var(--text);font-family:'Geist',monospace;letter-spacing:0.05em;}
+
+/* ── Consent box ───────────────────────── */
+.tc-consent{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.09);border-radius:12px;padding:16px;margin-bottom:18px;transition:border-color 0.25s,background 0.25s;}
+.tc-consent.checked{background:rgba(16,185,129,0.06);border-color:rgba(16,185,129,0.28);}
+.tc-consent-row{display:flex;gap:12px;align-items:flex-start;cursor:pointer;}
+/* custom checkbox */
+.tc-cb-wrap{flex-shrink:0;margin-top:1px;}
+.tc-cb{display:none;}
+.tc-cb-box{width:20px;height:20px;border-radius:5px;border:2px solid rgba(255,255,255,0.25);background:rgba(255,255,255,0.04);display:flex;align-items:center;justify-content:center;transition:border-color 0.2s,background 0.2s;cursor:pointer;}
+.tc-cb:checked + .tc-cb-box{background:var(--green);border-color:var(--green);}
+.tc-cb-tick{stroke-dasharray:30;stroke-dashoffset:30;transition:stroke-dashoffset 0.3s ease;}
+.tc-cb:checked + .tc-cb-box .tc-cb-tick{stroke-dashoffset:0;}
+.tc-consent-text{font-size:0.78rem;line-height:1.55;color:rgba(255,255,255,0.48);user-select:none;}
+.tc-consent-text strong{color:rgba(255,255,255,0.7);font-weight:600;}
+
+/* proceed button */
+.tc-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:13px 16px;background:linear-gradient(135deg,#7c6fe0,#2575fc);border:none;border-radius:10px;color:white;font-size:0.9rem;font-family:'Geist',sans-serif;font-weight:600;cursor:pointer;transition:opacity 0.2s,transform 0.15s,box-shadow 0.2s;box-shadow:0 4px 20px rgba(124,111,224,0.28);text-decoration:none;opacity:0.4;pointer-events:none;}
+.tc-btn.active{opacity:1;pointer-events:auto;}
+.tc-btn.active:hover{transform:translateY(-1px);box-shadow:0 8px 28px rgba(124,111,224,0.42);}
+.tc-btn.active:active{transform:scale(0.98);}
+.tc-back-link{text-align:center;margin-top:13px;font-size:0.78rem;}
+.tc-back-link a{color:rgba(255,255,255,0.28);text-decoration:none;}
+.tc-back-link a:hover{color:rgba(255,255,255,0.55);}
+@media(max-width:480px){.tc-card{padding:28px 18px;}.tc-details-grid{grid-template-columns:1fr;}.tc-detail-card.full{grid-column:1;}}
+</style>
+</head>
+<body>
+<div class="tc-bg"><div class="tc-orb tc-orb-1"></div><div class="tc-orb tc-orb-2"></div><div class="tc-grid"></div></div>
+<nav class="tc-nav">
+  <a href="/home" class="tc-nav-logo">
+    <img src="{{ url_for('static', filename='trustcheck_logo.png') }}" alt="TrustCheck Logo" style="width:55px;height:55px;">TRUSTCHECK
+  </a>
+  <a href="/login" class="tc-nav-btn">Sign In</a>
+</nav>
+<main class="tc-main">
+  <div class="tc-card">
+    <div class="tc-step-bar">
+      <div class="tc-step-seg done"></div>
+      <div class="tc-step-seg done"></div>
+      <div class="tc-step-seg"></div>
+    </div>
+
+    <div class="tc-center">
+      <div class="tc-verified-badge">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+        Identity Verified
+      </div>
+    </div>
+
+    <div class="tc-avatar">{{ user.full_name[0].upper() }}</div>
+    <h1 class="tc-name tc-center">{{ user.full_name }}</h1>
+    <p class="tc-sub tc-center">Your Aadhaar identity has been confirmed. Review your details below.</p>
+
+    <div class="tc-details-grid">
+      <div class="tc-detail-card">
+        <div class="tc-detail-icon">👤</div>
+        <div class="tc-detail-label">Gender</div>
+        <div class="tc-detail-value">
+          <span class="tc-gender-chip">
+            {% if user.gender == 'Male' %}♂{% elif user.gender == 'Female' %}♀{% else %}⚧{% endif %}
+            {{ user.gender }}
+          </span>
+        </div>
+      </div>
+      <div class="tc-detail-card">
+        <div class="tc-detail-icon">🗺️</div>
+        <div class="tc-detail-label">State</div>
+        <div class="tc-detail-value">{{ user.state or '—' }}</div>
+      </div>
+      <div class="tc-detail-card full">
+        <div class="tc-detail-icon">📱</div>
+        <div class="tc-detail-label">Aadhaar-Linked Mobile</div>
+        <div class="tc-mobile-masked">****&nbsp;****&nbsp;{{ user.mobile_number[-4:] }}</div>
+      </div>
+    </div>
+
+    <!-- Consent checkbox -->
+    <div class="tc-consent" id="consentBox">
+      <label class="tc-consent-row">
+        <div class="tc-cb-wrap">
+          <input type="checkbox" class="tc-cb" id="consentCb">
+          <div class="tc-cb-box">
+            <svg width="12" height="12" viewBox="0 0 16 16" fill="none">
+              <polyline class="tc-cb-tick" points="2 8 6 12 14 4" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+        </div>
+        <span class="tc-consent-text">
+          I hereby declare that the above information related to Aadhaar has been collected with my <strong>knowledge and consent</strong>. The information provided is <strong>true and accurate</strong> to the best of my knowledge and will be used only for the <strong>intended purpose</strong>.
+        </span>
+      </label>
+    </div>
+
+    <a href="{{ url_for('set_credentials') }}" class="tc-btn" id="proceedBtn">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+      Continue — Set Login Credentials →
+    </a>
+
+    <div class="tc-back-link"><a href="{{ url_for('register') }}">← Start over</a></div>
+  </div>
+</main>
+<script>
+const cb = document.getElementById('consentCb');
+const btn = document.getElementById('proceedBtn');
+const box = document.getElementById('consentBox');
+cb.addEventListener('change', () => {
+  btn.classList.toggle('active', cb.checked);
+  box.classList.toggle('checked', cb.checked);
+});
+</script>
+</body>
+</html>

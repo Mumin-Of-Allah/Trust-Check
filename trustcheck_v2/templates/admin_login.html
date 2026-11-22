@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Login — TrustCheck</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: "Calibri";
+    background: linear-gradient(135deg, #0f0c29, #080810,  #0f0c29);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .card {
+    background: black;
+    backdrop-filter: blur(20px);
+    border: 2px solid white;
+    border-radius: 20px;
+    padding: 44px 40px;
+    width: 100%;
+    max-width: 420px;
+    box-shadow: 0 25px 60px rgba(0,0,0,0.5);
+  }
+  .logo-area { text-align: center; margin-bottom: 5px; }
+  .logo-area .icon { font-size: 3em; display: block; margin-bottom: 5px; }
+  .logo-area h1 { font-size: 1.8em; font-weight: 900; color: white; letter-spacing: -0.5px;
+    margin-bottom: 0px;
+    font-family: "Calibri";
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.8),
+    0 0 20px rgba(255, 255, 255, 0.6);
+  }
+  .logo-area p { color: rgba(255,255,255,0.5); font-size: 0.88em; margin-bottom: 0px; }
+  .admin-badge {
+    display: inline-block;
+    background: linear-gradient(to right,#0000, );
+    color: white;
+    font-size: 0.72em;
+    font-weight: 700;
+    padding: 3px 12px;
+    border-radius: 20px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-top: 8px;
+  }
+  .field-group { margin-bottom: 20px; }
+  .field-group label {
+    display: block;
+    font-size: 0.78em;
+    font-weight: 600;
+    color: rgba(255,255,255,0.6);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 7px;
+  }
+  .input-wrap { position: relative; }
+  .input-wrap .icon-left {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1em;
+    color: rgba(255,255,255,0.3);
+  }
+  .input-wrap input {
+    width: 100%;
+    padding: 11px 14px 11px 38px;
+    background: rgba(255,255,255,0.08);
+    border: 1.5px solid rgba(255,255,255,0.12);
+    border-radius: 10px;
+    font-size: 0.95em;
+    color: white;
+    outline: none;
+    transition: border 0.2s;
+  }
+  .input-wrap input::placeholder { color: rgba(255,255,255,0.25); }
+  .input-wrap input:focus { border-color: black; box-shadow: 0 0 0 3px rgba(245,158,11,0.15); }
+  .toggle-pw {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    font-size: 1.1em;
+    color: rgba(255,255,255,0.3);
+    user-select: none;
+  }
+  .btn {
+    display: block;
+    width: 100%;
+    padding: 13px;
+    background: linear-gradient(to right, black, black);
+    color: white;
+    border: 100% white;
+    border-radius: 20px;
+    font-size: 1em;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 22px;
+    transition: opacity 0.2s, transform 0.1s;
+    letter-spacing: 0.3px;
+  }
+  .btn:hover { opacity: 0.9; transform: translateY(-1px); }
+  .flash {
+    padding: 11px 14px;
+    border-radius: 10px;
+    margin-bottom: 18px;
+    font-size: 0.88em;
+    font-weight: 500;
+  }
+  .flash.danger  { background: rgba(239,68,68,0.15); color: #fca5a5; border-left: 3px solid #ef4444; }
+  .flash.success { background: rgba(16,185,129,0.15); color: #6ee7b7; border-left: 3px solid #10b981; }
+  .back-link {
+    text-align: center;
+    margin-top: 22px;
+    font-size: 0.85em;
+    color: rgba(255,255,255,0.4);
+  }
+  .back-link a { color: rgba(255,255,255,0.7); text-decoration: none; font-weight: 600; }
+  .back-link a:hover { color: white; }
+  .warning-note {
+    background: rgba(245,158,11,0.1);
+    border: 1px solid rgba(245,158,11,0.25);
+    border-radius: 10px;
+    padding: 11px 14px;
+    font-size: 0.82em;
+    color: white;
+    margin-bottom: 22px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <div class="logo-area">
+    <img src="{{ url_for('static', filename='trustcheck_logo.png') }}" 
+       alt="TrustCheck Logo" 
+       style="width:80px; height:80px; object-fit:contain; margin-bottom:0px;">
+    <h1>TRUSTCHECK</h1>
+    <span class="admin-badge">⚙ Admin Portal</span>
+  </div>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for cat, msg in messages %}
+      <div class="flash {{ cat }}">{{ msg }}</div>
+    {% endfor %}
+  {% endwith %}
+
+  <div class="warning-note">
+    ⚠ Restricted access. Authorized personnel only.
+  </div>
+
+  <form method="POST" action="/admin/login">
+    <div class="field-group">
+      <label>Admin Username</label>
+      <div class="input-wrap">
+        <span class="icon-left">👤</span>
+        <input type="text" name="username" placeholder="Enter admin username" required autofocus>
+      </div>
+    </div>
+    <div class="field-group">
+      <label>Password</label>
+      <div class="input-wrap">
+        <span class="icon-left">🔑</span>
+        <input type="password" name="password" id="pw" placeholder="Enter admin password" required>
+        <span class="toggle-pw" onclick="const p=document.getElementById('pw');p.type=p.type==='password'?'text':'password'">👁</span>
+      </div>
+    </div>
+    <button class="btn" type="submit">🔓 Access Admin Panel</button>
+  </form>
+<br>
+  <div class="back-link">
+    <a href="/home">← Back to Home</a>
+  </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,1697 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TrustCheck Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;overflow:hidden;}
+
+
+:root{
+  --bg:   #0c0d14;
+  --bg2:  #10111c;
+  --card: #131521;
+  --card2:#171929;
+  --b1:   rgba(255,255,255,0.07);
+  --b2:   rgba(255,255,255,0.12);
+  --tx:   #e2e4f0;
+  --mu:   rgba(180,185,210,0.55);
+  --mu2:  rgba(180,185,210,0.35);
+
+  --cyan:   #22d3ee;
+  --purple: #7c5fe6;
+  --green:  #22c55e;
+  --yellow: #eab308;
+  --red:    #ef4444;
+  --blue:   #3b82f6;
+  --orange: #f97316;
+  --pink:   #ec4899;
+}
+
+html.light{
+  --bg:   #f6f2e9;
+  --bg2:  #efe8db;
+
+  --card: #fffaf2;
+  --card2:#f7efe2;
+
+  --b1:   rgba(0,0,0,0.08);
+  --b2:   rgba(0,0,0,0.15);
+
+  --tx:   #2c2a25;
+
+  --mu:   rgba(70,65,55,0.65);
+  --mu2:  rgba(70,65,55,0.40);
+}
+
+/* Theme toggle button removed - now inside profile menu */
+
+body{
+  background:var(--bg);
+  color:var(--tx);
+  font-family:'Inter',sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* subtle background nebula */
+html.light body::before{
+  background:
+    radial-gradient(ellipse 600px 400px at 15% 0%, rgba(124,95,230,0.12) 0%, transparent 70%),
+    radial-gradient(ellipse 500px 300px at 90% 100%, rgba(34,211,238,0.08) 0%, transparent 70%);
+}
+
+.app{display:flex;flex-direction:column;height:100vh;position:relative;z-index:1;}
+
+/* ═══════════════════════════════════════════════
+   TOPBAR  (like Taskade's top nav — just logo + user)
+═══════════════════════════════════════════════ */
+.topbar{
+  height:54px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 28px;
+  background:rgba(12,13,20,0.95);backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--b1);z-index:200;
+}
+html.light .topbar{background:rgba(240,242,248,0.95);
+background:#0c0d14;
+  color:white;
+
+  border-bottom:1px solid rgba(255,255,255,0.08);}
+.logo{display:flex;align-items:center;gap:9px;text-decoration:none;}
+.logo img{width:32px;height:32px;border-radius:8px;}
+.logo-name{font-size:15px;font-weight:800;color:whitesmoke;letter-spacing:.01em;font-family:'Calibri',sans-serif;
+  text-shadow:0 0 18px rgba(255,255,255,0.35);}
+html.light .logo-name{text-shadow:none;}
+.nav-r{display:flex;align-items:center;gap:10px;}
+
+/* ── PROFILE DROPDOWN ── */
+.profile-wrap{position:relative;}
+.profile-trigger{
+  display:flex;align-items:center;gap:8px;cursor:pointer;
+  padding:5px 10px 5px 5px;border-radius:10px;border:1px solid var(--b1);
+  background:transparent;transition:all .2s;
+}
+.profile-trigger:hover{background:var(--card2);border-color:var(--b2);}
+.av{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--purple),var(--cyan));
+    display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0;}
+.profile-name{font-size:13px;font-weight:600;color:var(--tx);}
+.profile-chevron{font-size:10px;color:var(--mu);transition:transform .2s;}
+.profile-wrap.open .profile-chevron{transform:rotate(180deg);}
+
+.profile-menu{
+  position:absolute;top:calc(100% + 8px);right:0;
+  width:240px;background:var(--card);border:1px solid var(--b2);
+  border-radius:14px;box-shadow:0 16px 48px rgba(0,0,0,.32);
+  padding:6px;z-index:999;
+  opacity:0;transform:translateY(-6px) scale(.97);pointer-events:none;
+  transition:opacity .18s,transform .18s;
+}
+html.light .profile-menu{box-shadow:0 8px 32px rgba(0,0,0,.14);}
+.profile-wrap.open .profile-menu{opacity:1;transform:translateY(0) scale(1);pointer-events:all;}
+
+.pm-header{padding:10px 12px 10px;display:flex;align-items:center;gap:10px;
+           border-bottom:1px solid var(--b1);margin-bottom:5px;}
+.pm-av{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--purple),var(--cyan));
+       display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#fff;flex-shrink:0;}
+.pm-name{font-size:13.5px;font-weight:700;color:var(--tx);}
+.pm-role{font-size:11px;color:var(--mu);margin-top:1px;}
+
+.pm-item{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:9px 12px;border-radius:9px;cursor:pointer;
+  font-size:13px;color:var(--tx);transition:background .15s;
+  border:none;background:none;font-family:'Inter',sans-serif;width:100%;text-align:left;
+  text-decoration:none;
+}
+.pm-item:hover{background:var(--card2);}
+.pm-item.danger{color:var(--red);}
+.pm-item.danger:hover{background:rgba(239,68,68,.08);}
+.pm-item-l{display:flex;align-items:center;gap:9px;}
+.pm-ico{font-size:15px;width:20px;text-align:center;}
+.pm-divider{height:1px;background:var(--b1);margin:5px 0;}
+
+/* Theme switch */
+.theme-switch{
+  width:40px;height:22px;border-radius:11px;
+  background:var(--b2);position:relative;cursor:pointer;
+  transition:background .2s;flex-shrink:0;border:none;
+}
+html.light .theme-switch{background:var(--purple);}
+.theme-switch::after{
+  content:'';position:absolute;top:3px;left:3px;
+  width:16px;height:16px;border-radius:50%;background:#fff;
+  transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.3);
+}
+html.light .theme-switch::after{transform:translateX(18px);}
+
+/* Language selector */
+.lang-select{
+  background:var(--card2);border:1px solid var(--b2);color:var(--tx);
+  font-family:'Inter',sans-serif;font-size:12px;font-weight:600;
+  padding:3px 7px;border-radius:7px;cursor:pointer;outline:none;
+}
+
+.nav-btn{color:var(--mu);text-decoration:none;font-size:12.5px;font-weight:500;padding:6px 14px;
+         border-radius:8px;border:1px solid var(--b1);transition:all .2s;}
+.nav-btn:hover{color:var(--tx);background:rgba(255,255,255,.05);border-color:var(--b2);}
+.nav-btn.out{color:var(--red);border-color:rgba(239,68,68,.22);}
+.nav-btn.out:hover{background:rgba(239,68,68,.08);}
+
+/* ═══════════════════════════════════════════════
+   SUB-HEADER (fixed icon + title + tabs)
+═══════════════════════════════════════════════ */
+.subheader{
+  flex-shrink:0;
+  padding:18px 32px 0;
+  background:var(--bg);
+  border-bottom:1px solid var(--b1);
+  z-index:100;
+}
+html.light .subheader{background:var(--bg);}
+.sh-top{display:flex;align-items:center;gap:14px;margin-bottom:14px;}
+.sh-icon{
+  width:52px;height:52px;border-radius:15px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;font-size:22px;
+  background:rgba(124,95,230,.18);border:1px solid rgba(124,95,230,.3);
+  transition:background .2s,border-color .2s;
+}
+.sh-icon.blue  {background:rgba(59,130,246,.15); border-color:rgba(59,130,246,.3);}
+.sh-icon.green {background:rgba(34,197,94,.15);  border-color:rgba(34,197,94,.3);}
+.sh-icon.orange{background:rgba(249,115,22,.15); border-color:rgba(249,115,22,.3);}
+.sh-icon.cyan  {background:rgba(34,211,238,.15); border-color:rgba(34,211,238,.3);}
+.sh-title{font-size:26px;font-weight:800;color:var(--tx);letter-spacing:-.4px;line-height:1.1;transition:color .15s;}
+.sh-sub  {font-size:13px;color:var(--mu);margin-top:2px;transition:color .15s;}
+
+/* ═══════════════════════════════════════════════
+   MAIN CONTENT AREA
+═══════════════════════════════════════════════ */
+.content{flex:1;overflow-y:auto;padding:24px 32px;min-height:0;}
+.content::-webkit-scrollbar{width:4px;}
+.content::-webkit-scrollbar-thumb{background:rgba(255,255,255,.08);border-radius:2px;}
+
+/* panels */
+.panel{display:none;animation:fadeUp .22s ease both;}
+.panel.active{display:block;}
+@keyframes fadeUp{from{opacity:0}to{opacity:1}}
+
+/* ── PAGE HEADER (exact Taskade style: big icon left, title + subtitle) ── */
+.page-header{
+  display:flex;align-items:center;gap:16px;
+  margin-bottom:24px;
+}
+.page-icon{
+  width:56px;height:56px;border-radius:16px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;font-size:24px;
+  background:rgba(124,95,230,.18);border:1px solid rgba(124,95,230,.3);
+}
+.page-icon.blue{background:rgba(59,130,246,.15);border-color:rgba(59,130,246,.3);}
+.page-icon.green{background:rgba(34,197,94,.15);border-color:rgba(34,197,94,.3);}
+.page-icon.orange{background:rgba(249,115,22,.15);border-color:rgba(249,115,22,.3);}
+.page-icon.cyan{background:rgba(34,211,238,.15);border-color:rgba(34,211,238,.3);}
+.page-title{font-size:28px;font-weight:800;color:var(--tx);letter-spacing:-.4px;line-height:1.1;}
+.page-sub{font-size:13.5px;color:var(--mu);margin-top:3px;}
+
+/* ── TABS (exact Taskade style: flat row, one pill active, border bottom on container) ── */
+.tabs{
+  display:flex;align-items:center;gap:2px;
+  border:1px solid var(--b1);border-radius:14px;
+  background:var(--card2);
+  padding:5px;margin-bottom:0;
+  width:fit-content;
+}
+.tab{
+  display:flex;align-items:center;gap:7px;
+  padding:9px 20px;border-radius:10px;
+  font-size:13.5px;font-weight:600;color:var(--mu);
+  cursor:pointer;transition:all .18s;border:none;background:none;
+  font-family:'Inter',sans-serif;white-space:nowrap;
+}
+.tab:hover{color:var(--tx);background:rgba(255,255,255,.05);}
+.tab.on{
+  background:rgba(124,95,230,.18);color:#a78bfa;
+  box-shadow:0 0 0 1px rgba(124,95,230,.3);
+}
+.tab.on.blue-tab{background:rgba(34,211,238,.12);color:var(--cyan);box-shadow:0 0 0 1px rgba(34,211,238,.3);}
+.tab.on.yellow-tab{background:rgba(234,179,8,.1);color:var(--yellow);box-shadow:0 0 0 1px rgba(234,179,8,.28);}
+.tab.on.green-tab{background:rgba(34,197,94,.1);color:var(--green);box-shadow:0 0 0 1px rgba(34,197,94,.28);}
+
+/* ── STAT CARDS (exact match: label + icon top, huge number middle, sub below) ── */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px;}
+@media(max-width:800px){.stats-grid{grid-template-columns:repeat(2,1fr);}}
+.scard{
+  background:var(--card);border:1px solid var(--b1);
+  border-radius:16px;padding:22px 22px 18px;
+  transition:border-color .2s,transform .2s;
+}
+.scard:hover{border-color:var(--b2);transform:translateY(-2px);}
+.scard-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;}
+.scard-label{font-size:13px;color:var(--mu);font-weight:500;}
+.scard-icon{
+  width:40px;height:40px;border-radius:11px;
+  display:flex;align-items:center;justify-content:center;font-size:17px;
+}
+.si-purple{background:rgba(124,95,230,.15);border:1px solid rgba(124,95,230,.22);}
+.si-blue  {background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.22);}
+.si-green {background:rgba(34,197,94,.15); border:1px solid rgba(34,197,94,.22);}
+.si-orange{background:rgba(249,115,22,.15);border:1px solid rgba(249,115,22,.22);}
+.si-cyan  {background:rgba(34,211,238,.15);border:1px solid rgba(34,211,238,.22);}
+.si-yellow{background:rgba(234,179,8,.12); border:1px solid rgba(234,179,8,.22);}
+.si-red   {background:rgba(239,68,68,.12); border:1px solid rgba(239,68,68,.22);}
+.scard-val{font-size:34px;font-weight:800;color:var(--tx);letter-spacing:-.8px;line-height:1;margin-bottom:8px;}
+.scard-sub{font-size:12.5px;font-weight:500;}
+.scard-sub.green{color:var(--green);}
+.scard-sub.yellow{color:var(--yellow);}
+.scard-sub.muted{color:var(--mu);}
+.scard-sub.red{color:var(--red);}
+
+/* ── GRID LAYOUTS ── */
+.two-pane{display:grid;grid-template-columns:1fr 380px;gap:16px;margin-bottom:16px;}
+@media(max-width:1000px){.two-pane{grid-template-columns:1fr;}}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+@media(max-width:700px){.two-col{grid-template-columns:1fr;}}
+.three-col{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:16px;}
+
+/* ── CARD ── */
+.card{background:var(--card);border:1px solid var(--b1);border-radius:16px;padding:20px 22px;}
+.card-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;}
+.card-hd-l{display:flex;align-items:center;gap:10px;}
+.card-ico{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;}
+.card-ico.purple{background:rgba(124,95,230,.15);border:1px solid rgba(124,95,230,.22);}
+.card-ico.blue{background:rgba(59,130,246,.15);border:1px solid rgba(59,130,246,.22);}
+.card-ico.green{background:rgba(34,197,94,.15);border:1px solid rgba(34,197,94,.22);}
+.card-ico.orange{background:rgba(249,115,22,.15);border:1px solid rgba(249,115,22,.22);}
+.card-ico.cyan{background:rgba(34,211,238,.15);border:1px solid rgba(34,211,238,.22);}
+.card-title{font-size:15px;font-weight:700;color:var(--tx);}
+.card-sub{font-size:12px;color:var(--mu);margin-top:2px;}
+.card-badge{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700;
+}
+.cb-green{background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.25);color:var(--green);}
+.cb-yellow{background:rgba(234,179,8,.12);border:1px solid rgba(234,179,8,.25);color:var(--yellow);}
+.cb-red{background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.25);color:var(--red);}
+.cb-purple{background:rgba(124,95,230,.12);border:1px solid rgba(124,95,230,.25);color:#a78bfa;}
+.cb-blue{background:rgba(59,130,246,.12);border:1px solid rgba(59,130,246,.25);color:var(--blue);}
+
+/* ── SCAN FEED TABLE ── */
+.feed-hdr{
+  display:grid;grid-template-columns:2fr 1.1fr 1fr .9fr;
+  padding:9px 18px;background:var(--card2);
+  border-bottom:1px solid var(--b1);
+  font-size:10.5px;font-weight:600;color:var(--mu);text-transform:uppercase;letter-spacing:.07em;
+}
+.feed-row{
+  display:grid;grid-template-columns:2fr 1.1fr 1fr .9fr;
+  padding:10px 18px;border-bottom:1px solid var(--b1);
+  align-items:center;font-size:12px;transition:background .15s;
+}
+.feed-row:last-child{border-bottom:none;}
+.feed-row:hover{background:rgba(124,95,230,.03);}
+html.light .feed-row:hover{background:rgba(0,0,0,.02);}
+.feed-row.live-row{border-left:2px solid var(--purple);background:rgba(124,95,230,.04);}
+.feed-url{font-family:monospace;font-size:11px;color:var(--tx);opacity:.78;font-weight:500;}
+.feed-type{color:var(--mu);}
+.badge{font-size:10px;font-weight:700;padding:3px 9px;border-radius:6px;display:inline-block;}
+.b-red{background:rgba(239,68,68,.12);color:#f87171;border:1px solid rgba(239,68,68,.2);}
+.b-green{background:rgba(34,197,94,.12);color:#4ade80;border:1px solid rgba(34,197,94,.2);}
+.b-yellow{background:rgba(234,179,8,.12);color:#fbbf24;border:1px solid rgba(234,179,8,.2);}
+.live-dot-badge{
+  margin-left:auto;font-size:10.5px;font-weight:700;letter-spacing:.4px;
+  padding:3px 10px;border-radius:20px;
+  background:rgba(239,68,68,.1);color:#f87171;border:1px solid rgba(239,68,68,.18);
+}
+.rbar{width:58px;height:4px;background:var(--b2);border-radius:2px;overflow:hidden;}
+.rfill{height:100%;border-radius:2px;animation:grow 1.5s ease both .4s;}
+.rfill.hi{background:var(--red);}.rfill.lo{background:var(--green);}.rfill.md{background:var(--yellow);}
+@keyframes grow{from{width:0!important}}
+.feed-empty{padding:24px 18px;text-align:center;font-size:12.5px;color:var(--mu);}
+
+/* ── DONUT ── */
+.donut-wrap{display:flex;flex-direction:column;align-items:center;gap:14px;}
+.donut{width:130px;height:130px;border-radius:50%;position:relative;animation:dspin 1.3s .3s cubic-bezier(.16,1,.3,1) both;}
+@keyframes dspin{from{opacity:0;transform:rotate(-90deg) scale(.7)}to{opacity:1;transform:rotate(0) scale(1)}}
+.donut::after{content:'';position:absolute;inset:28px;background:var(--card);border-radius:50%;}
+.donut-inner{position:absolute;inset:28px;z-index:1;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.donut-pct{font-size:18px;font-weight:800;color:var(--tx);}
+.donut-lbl{font-size:9px;color:var(--mu);margin-top:2px;}
+.legend{width:100%;display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+.legend-item{display:flex;align-items:center;justify-content:space-between;font-size:11.5px;}
+.legend-left{display:flex;align-items:center;gap:7px;color:var(--mu);}
+.legend-dot{width:9px;height:9px;border-radius:50%;}
+.legend-name{font-weight:500;}
+.legend-pct{font-weight:700;color:var(--tx);font-size:12px;}
+
+/* ── PROCESS MINI ── */
+.proc-row{display:grid;grid-template-columns:2fr .8fr .8fr .7fr;font-size:11.5px;
+          padding:6px 0;border-bottom:1px solid var(--b1);color:var(--tx);opacity:.6;align-items:center;}
+.proc-row:last-child{border-bottom:none;}
+.proc-row.hd{color:var(--mu);font-size:10px;font-weight:600;text-transform:uppercase;padding-bottom:8px;opacity:1;}
+.proc-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.proc-name.hi{color:#fca5a5;}
+.proc-safe{color:var(--green);font-weight:700;font-size:10px;}
+.proc-kill{color:var(--red);font-weight:700;font-size:10px;background:rgba(239,68,68,.1);
+           padding:2px 7px;border-radius:5px;cursor:pointer;border:1px solid rgba(239,68,68,.2);
+           font-family:inherit;transition:all .15s;}
+.proc-kill:hover{background:rgba(239,68,68,.2);}
+
+/* ── QUICK ACCESS ── */
+.qrow{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:16px;}
+@media(max-width:700px){.qrow{grid-template-columns:repeat(2,1fr);}}
+.qcard{
+  background:var(--card);border:1px solid var(--b1);border-radius:14px;
+  padding:16px 18px;display:flex;align-items:center;gap:12px;
+  cursor:pointer;transition:all .2s;
+}
+.qcard:hover{transform:translateY(-2px);}
+.qcard:hover .qico-purple{border-color:rgba(124,95,230,.4);}
+.qcard:hover .qico-blue{border-color:rgba(59,130,246,.4);}
+.qcard:hover .qico-green{border-color:rgba(34,197,94,.4);}
+.qcard:hover .qico-orange{border-color:rgba(249,115,22,.4);}
+.qcard:hover .qico-cyan{border-color:rgba(34,211,238,.4);}
+.qico{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+.qico-purple{background:rgba(124,95,230,.12);border:1px solid rgba(124,95,230,.22);}
+.qico-blue  {background:rgba(59,130,246,.12);border:1px solid rgba(59,130,246,.22);}
+.qico-green {background:rgba(34,197,94,.12); border:1px solid rgba(34,197,94,.22);}
+.qico-orange{background:rgba(249,115,22,.12);border:1px solid rgba(249,115,22,.22);}
+.qico-cyan  {background:rgba(34,211,238,.12);border:1px solid rgba(34,211,238,.22);}
+.qt{font-size:13px;font-weight:700;color:var(--tx);}
+.qs{font-size:11px;color:var(--mu);margin-top:2px;}
+
+/* ── FORMS ── */
+label{display:block;font-size:11.5px;font-weight:600;color:var(--mu);margin-bottom:6px;text-transform:uppercase;letter-spacing:.06em;}
+.inp{width:100%;padding:11px 14px;border-radius:10px;background:rgba(255,255,255,.04);
+     border:1px solid var(--b2);color:var(--tx);font-family:'Inter',sans-serif;font-size:14px;
+     outline:none;transition:border-color .2s,box-shadow .2s;}
+html.light .inp{background:rgba(0,0,0,.03);}
+.inp:focus{border-color:var(--purple);box-shadow:0 0 0 3px rgba(124,95,230,.12);}
+.inp::placeholder{color:var(--mu2);}
+.inp.blue:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(59,130,246,.12);}
+.inp.green:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(34,197,94,.12);}
+
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:7px;
+  padding:11px 22px;border-radius:10px;font-family:'Inter',sans-serif;
+  font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;border:none;
+}
+.btn.w{width:100%;margin-top:12px;}
+.btn.purple{background:linear-gradient(135deg,#7c5fe6,#a78bfa);color:#fff;box-shadow:0 4px 16px rgba(124,95,230,.28);}
+.btn.blue{background:linear-gradient(135deg,#3b82f6,#60a5fa);color:#fff;box-shadow:0 4px 16px rgba(59,130,246,.28);}
+.btn.green{background:linear-gradient(135deg,#22c55e,#4ade80);color:#fff;box-shadow:0 4px 16px rgba(34,197,94,.28);}
+.btn.orange{background:linear-gradient(135deg,#f97316,#fbbf24);color:#fff;box-shadow:0 4px 16px rgba(249,115,22,.28);}
+.btn:hover{opacity:.88;transform:translateY(-1px);}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none;}
+
+/* ── PROCESS TABLE ── */
+.table-wrap{background:var(--card);border:1px solid var(--b1);border-radius:16px;overflow:hidden;}
+.table-top{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--b1);}
+.table-top-l{display:flex;align-items:center;gap:10px;}
+.tco{width:34px;height:34px;border-radius:9px;background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.2);display:flex;align-items:center;justify-content:center;font-size:15px;}
+.t-title{font-size:14px;font-weight:700;color:var(--tx);}
+.t-sub{font-size:11.5px;color:var(--mu);margin-top:1px;}
+.pill-live{display:flex;align-items:center;gap:5px;font-size:10.5px;font-weight:700;text-transform:uppercase;
+           letter-spacing:.06em;padding:4px 11px;border-radius:20px;
+           color:var(--green);background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);}
+.spin{width:6px;height:6px;border-radius:50%;border:1.5px solid rgba(34,197,94,.3);border-top-color:var(--green);animation:sp 1s linear infinite;display:inline-block;}
+@keyframes sp{to{transform:rotate(360deg)}}
+.ovf{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;}
+thead th{padding:10px 20px;text-align:left;font-size:10.5px;font-weight:600;color:var(--mu);
+         text-transform:uppercase;letter-spacing:.07em;border-bottom:1px solid var(--b1);background:var(--card2);}
+tbody tr{border-bottom:1px solid var(--b1);transition:background .15s;}
+tbody tr:last-child{border-bottom:none;}
+tbody tr:hover{background:rgba(124,95,230,.04);}
+html.light tbody tr:hover{background:rgba(0,0,0,.02);}
+tbody td{padding:11px 20px;font-size:13px;vertical-align:middle;}
+.pid{color:var(--mu);font-family:monospace;font-size:12px;}
+.cpu-w{display:flex;align-items:center;gap:8px;}
+.cbar{height:4px;width:72px;background:var(--b2);border-radius:2px;}
+.cfill{height:100%;border-radius:2px;}
+.cfill.low{background:var(--green);}.cfill.med{background:var(--yellow);}.cfill.hi{background:var(--red);}
+.cnum{font-size:12px;color:var(--mu);min-width:36px;}
+.kill-btn{display:inline-flex;align-items:center;gap:4px;padding:5px 13px;border-radius:8px;
+          font-size:12px;font-weight:700;font-family:'Inter',sans-serif;cursor:pointer;
+          background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);color:var(--red);transition:all .2s;}
+.kill-btn:hover{background:rgba(239,68,68,.18);}
+.kill-btn:disabled{opacity:.4;cursor:not-allowed;}
+.table-foot{padding:9px 20px;border-top:1px solid var(--b1);display:flex;align-items:center;justify-content:space-between;font-size:11px;color:var(--mu);}
+.mini-btn{display:inline-flex;align-items:center;gap:5px;padding:5px 13px;border-radius:8px;
+          font-size:12px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;
+          border:1px solid var(--b2);background:var(--card2);color:var(--tx);transition:all .2s;text-decoration:none;}
+.mini-btn:hover{border-color:rgba(124,95,230,.3);background:rgba(124,95,230,.08);}
+.mini-btn.ac{color:#a78bfa;border-color:rgba(124,95,230,.3);background:rgba(124,95,230,.08);}
+
+/* ── URL RESULT ── */
+.url-result{margin-top:16px;padding:16px 18px;border-radius:12px;display:none;animation:fadeUp .3s ease;}
+.url-result.safe{background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.2);}
+.url-result.phishing{background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.2);}
+.url-result.suspicious{background:rgba(234,179,8,.06);border:1px solid rgba(234,179,8,.2);}
+.vd-row{display:flex;align-items:center;gap:14px;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid rgba(255,255,255,.06);}
+.vd-ico{font-size:26px;}
+.vd-lbl{font-size:10px;color:var(--mu);text-transform:uppercase;letter-spacing:.08em;margin-bottom:2px;}
+.vd-txt{font-size:15px;font-weight:800;}
+.vd-txt.safe{color:var(--green);}.vd-txt.phishing{color:var(--red);}.vd-txt.suspicious{color:var(--yellow);}
+.r-meta{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
+.r-mi{background:var(--card2);border-radius:9px;padding:9px 12px;border:1px solid var(--b1);}
+.r-ml{font-size:10px;color:var(--mu);text-transform:uppercase;margin-bottom:3px;}
+.r-mv{font-size:13px;font-weight:700;}
+.sig-lbl{font-size:10px;color:var(--mu);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px;}
+.sig-tags{display:flex;flex-wrap:wrap;gap:5px;}
+.sig-tag{font-size:11px;padding:4px 10px;border-radius:20px;background:var(--card2);border:1px solid var(--b2);color:var(--mu);}
+
+/* ── DROP ZONE ── */
+.drop-zone{border:2px dashed var(--b2);border-radius:14px;padding:36px;text-align:center;transition:all .2s;cursor:pointer;margin-bottom:14px;}
+.drop-zone:hover,.drop-zone.over{border-color:var(--orange);background:rgba(249,115,22,.05);}
+.drop-ico{font-size:36px;margin-bottom:10px;}
+.drop-title{font-size:14px;font-weight:700;margin-bottom:5px;}
+.drop-sub{font-size:12px;color:var(--mu);}
+.drop-input{display:none;}
+.file-sel{display:flex;align-items:center;gap:10px;background:var(--card2);border:1px solid var(--b2);border-radius:10px;padding:11px 14px;margin-bottom:12px;}
+.fs-ico{font-size:18px;}.fs-name{font-size:13px;font-weight:700;}.fs-size{font-size:11.5px;color:var(--mu);}
+.exe-result{padding:16px;border-radius:12px;display:none;animation:fadeUp .3s ease;margin-top:14px;}
+.exe-result.safe{background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.2);}
+.exe-result.suspicious{background:rgba(234,179,8,.06);border:1px solid rgba(234,179,8,.2);}
+.exe-result.malicious{background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.2);}
+.er-row{display:flex;justify-content:space-between;align-items:flex-start;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:13px;}
+.er-row:last-child{border-bottom:none;}
+.er-k{color:var(--mu);font-size:11px;text-transform:uppercase;letter-spacing:.05em;}
+.er-v{font-weight:700;text-align:right;max-width:260px;word-break:break-all;}
+.er-v.safe{color:var(--green);}.er-v.suspicious{color:var(--yellow);}.er-v.malicious{color:var(--red);}
+
+/* ── HIST ROW ── */
+.hist-row{display:flex;align-items:center;justify-content:space-between;background:var(--card);
+          border:1px solid var(--b1);border-radius:12px;padding:14px 18px;
+          text-decoration:none;color:var(--tx);transition:all .2s;margin-top:12px;}
+.hist-row:hover{border-color:rgba(124,95,230,.3);transform:translateY(-1px);}
+.hist-l{display:flex;align-items:center;gap:10px;}
+.hist-r{color:var(--mu);font-size:14px;transition:color .2s;}
+.hist-row:hover .hist-r{color:#a78bfa;}
+
+/* ── CALLER VERIFY ── */
+.cv-live{display:inline-flex;align-items:center;gap:7px;font-size:11px;font-weight:700;text-transform:uppercase;
+         letter-spacing:.06em;padding:5px 13px;border-radius:20px;
+         color:var(--green);background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);margin-bottom:16px;}
+.cv-strip{background:var(--card);border:1px solid var(--b1);border-radius:16px;padding:18px 20px;
+          display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:18px;transition:box-shadow .3s;}
+.cv-ava{width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,var(--purple),var(--cyan));
+        display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
+.cv-meta{flex:1;}
+.cv-meta-lbl{font-size:10.5px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.05em;}
+.cv-meta-num{font-size:20px;font-weight:800;color:var(--tx);font-family:monospace;letter-spacing:.5px;}
+.cv-meta-time{font-size:12px;color:var(--mu);margin-top:2px;}
+.cv-btn-now{padding:11px 20px;background:linear-gradient(135deg,var(--green),#4ade80);color:#fff;
+            border:none;border-radius:10px;font-family:'Inter',sans-serif;font-size:13px;
+            font-weight:700;cursor:pointer;transition:opacity .2s,transform .15s;flex-shrink:0;}
+.cv-btn-now:hover{opacity:.85;transform:translateY(-1px);}
+.cv-result{margin-top:14px;padding:16px;border-radius:12px;display:none;animation:fadeUp .3s ease;}
+.cv-result.verified{background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.2);}
+.cv-result.not-verified{background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.2);}
+.cv-res-top{display:flex;align-items:center;gap:12px;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid rgba(255,255,255,.06);}
+.cv-res-ico{font-size:26px;}
+.cv-res-title{font-size:15px;font-weight:800;}
+.cv-res-title.ok{color:var(--green);}.cv-res-title.no{color:var(--red);}
+.cv-res-sub{font-size:12px;color:var(--mu);margin-top:2px;}
+.cv-det-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.cv-det-chip{background:var(--card2);border:1px solid var(--b1);border-radius:10px;padding:10px 14px;}
+.cv-det-lbl{font-size:10px;font-weight:700;color:var(--mu);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px;}
+.cv-det-val{font-size:14px;font-weight:700;}
+.cv-hist-tbl{width:100%;border-collapse:collapse;font-size:13px;}
+.cv-hist-tbl thead th{padding:9px 14px;text-align:left;font-size:10.5px;font-weight:600;color:var(--mu);text-transform:uppercase;letter-spacing:.07em;border-bottom:1px solid var(--b1);}
+.cv-hist-tbl tbody tr{border-bottom:1px solid rgba(255,255,255,.04);transition:background .15s;}
+.cv-hist-tbl tbody tr:last-child{border-bottom:none;}
+.cv-hist-tbl tbody tr:hover{background:rgba(255,255,255,.02);}
+.cv-hist-tbl tbody td{padding:10px 14px;vertical-align:middle;}
+.mono-chip{font-family:monospace;font-size:12px;background:var(--card2);padding:2px 8px;border-radius:5px;color:var(--tx);font-weight:600;}
+.status-pill{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;}
+.sp-ok{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.25);color:var(--green);}
+.sp-no{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.25);color:var(--red);}
+
+/* Steps */
+.steps{display:flex;flex-direction:column;gap:0;}
+.step{display:flex;gap:12px;padding-bottom:18px;position:relative;}
+.step:last-child{padding-bottom:0;}
+.step:not(:last-child)::after{content:'';position:absolute;left:16px;top:34px;bottom:0;width:1px;background:var(--b2);}
+.step-n{width:32px;height:32px;flex-shrink:0;border-radius:9px;background:rgba(124,95,230,.12);
+        border:1px solid rgba(124,95,230,.22);display:flex;align-items:center;justify-content:center;
+        font-size:12px;font-weight:800;color:#a78bfa;}
+.step-title{font-size:13px;font-weight:700;color:var(--tx);margin-bottom:2px;}
+.step-desc{font-size:12px;color:var(--mu);line-height:1.55;}
+
+/* ── Verdict Badges (inline history) ──────── */
+.verdict-badge{
+  display:inline-flex;align-items:center;gap:5px;
+  font-size:.7rem;font-weight:700;text-transform:uppercase;
+  letter-spacing:.06em;padding:3px 10px;border-radius:20px;white-space:nowrap;
+}
+.verdict-badge.phishing,.verdict-badge.malicious{color:var(--red);background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.25);}
+.verdict-badge.safe{color:var(--green);background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.25);}
+.verdict-badge.suspicious,.verdict-badge.warning{color:var(--yellow);background:rgba(234,179,8,.1);border:1px solid rgba(234,179,8,.25);}
+
+/* ── Inline History Card ──────────────────── */
+.inline-hist-card{
+  background:var(--card);border:1px solid var(--b1);
+  border-radius:14px;overflow:hidden;
+}
+.inh-hd{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px 16px;cursor:pointer;transition:background .15s;
+}
+.inh-hd:hover{background:rgba(255,255,255,.03);}
+.inh-arrow{font-size:11px;color:var(--mu);transition:transform .2s;}
+.inh-body{border-top:1px solid var(--b1);}
+.inh-loading{padding:18px;text-align:center;color:var(--mu);font-size:13px;}
+.inh-body table{width:100%;border-collapse:collapse;}
+.inh-body thead th{
+  padding:8px 14px;text-align:left;font-size:.67rem;font-weight:600;
+  color:var(--mu);text-transform:uppercase;letter-spacing:.07em;
+  border-bottom:1px solid var(--b1);background:rgba(255,255,255,.01);
+}
+.inh-body tbody tr{border-bottom:1px solid var(--b1);transition:background .12s;}
+.inh-body tbody tr:last-child{border-bottom:none;}
+.inh-body tbody tr:hover{background:rgba(255,255,255,.02);}
+.inh-body tbody td{padding:9px 14px;font-size:.83rem;vertical-align:middle;}
+.inh-empty{padding:28px;text-align:center;color:var(--mu);font-size:13px;}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- ═══ TOPBAR ═══════════════════════════════════════════ -->
+<nav class="topbar">
+  <a href="#" onclick="goPanel('dash');return false;" class="logo">
+    <img src="{{ url_for('static', filename='trustcheck_logo.png') }}" alt="TrustCheck Logo">
+    <span class="logo-name">TRUSTCHECK</span>
+  </a>
+  <div class="nav-r">
+    <div class="profile-wrap" id="profileWrap">
+      <div class="profile-trigger" onclick="toggleProfileMenu()">
+        <div class="av" id="navAv">{{ session.full_name[:2].upper() if session.full_name else 'TC' }}</div>
+        <span class="profile-name" id="navName">{{ session.full_name if session.full_name else 'User' }}</span>
+        <span class="profile-chevron">▼</span>
+      </div>
+      <div class="profile-menu" id="profileMenu">
+        <!-- Header -->
+        <div class="pm-header">
+          <div class="pm-av" id="pmAv">{{ session.full_name[:2].upper() if session.full_name else 'TC' }}</div>
+          <div>
+            <div class="pm-name" id="pmName">{{ session.full_name if session.full_name else 'User' }}</div>
+            <div class="pm-role" data-i18n="pm_role">TrustCheck User</div>
+          </div>
+        </div>
+        <!-- Dark / Light Mode -->
+        <div class="pm-item" onclick="toggleTheme()">
+          <div class="pm-item-l">
+            <span class="pm-ico" id="themeIco">🌙</span>
+            <span id="themeLabel">Dark Mode</span>
+          </div>
+          <button class="theme-switch" id="themeSwitch" onclick="event.stopPropagation();toggleTheme()"></button>
+        </div>
+        <!-- Language -->
+        <div class="pm-item" style="cursor:default;" onclick="event.stopPropagation()">
+          <div class="pm-item-l">
+            <span class="pm-ico">🌐</span>
+            <span data-i18n="lang_label">Language</span>
+          </div>
+          <select class="lang-select" id="langSelect" onchange="changeLang(this.value)" onclick="event.stopPropagation()">
+            <option value="en">English</option>
+            <option value="kn">ಕನ್ನಡ</option>
+          </select>
+        </div>
+        <div class="pm-divider"></div>
+        <!-- Logout -->
+        <a href="{{ url_for('logout') }}" class="pm-item danger">
+          <div class="pm-item-l">
+            <span class="pm-ico">🚪</span>
+            <span id="logoutLabel">Logout</span>
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- ═══ SUB-HEADER ══════════════════════════════════════ -->
+<div class="subheader">
+  <div class="sh-top">
+    <div class="sh-icon" id="shIcon">📊</div>
+    <div>
+      <div class="sh-title" id="shTitle">Security Dashboard</div>
+      <div class="sh-sub"   id="shSub">Real-time threat intelligence and system overview</div>
+    </div>
+  </div>
+  <div class="tabs">
+    <button class="tab on"  id="tab-dash"   onclick="goPanel('dash')"  data-i18n="tab_overview">📊 Overview</button>
+    <button class="tab"     id="tab-verify" onclick="goPanel('verify')" data-i18n="tab_verify">📲 Caller Verify</button>
+    <button class="tab"     id="tab-phish"  onclick="goPanel('phish')" data-i18n="tab_urlscanner">🔗 URL Scanner</button>
+    <button class="tab"     id="tab-proc"   onclick="goPanel('proc')"  data-i18n="tab_processes">⚙️ Processes</button>
+    <button class="tab"     id="tab-exe"    onclick="goPanel('exe')"   data-i18n="tab_exe">📄 EXE Analysis</button>
+  </div>
+</div>
+
+<!-- ═══ CONTENT ══════════════════════════════════════════ -->
+<div class="content" id="mainContent">
+
+  <!-- ══ PANEL: DASHBOARD ════════════════════════════════ -->
+  <div class="panel active" id="panel-dash">
+
+
+    <!-- Stat Cards -->
+    <div class="stats-grid">
+      <div class="scard">
+        <div class="scard-top">
+          <div class="scard-label" data-i18n="stat_urls">URLs Scanned</div>
+          <div class="scard-icon si-blue">🔗</div>
+        </div>
+        <div class="scard-val" id="stat-urls">{{ urls_scanned }}</div>
+        <div class="scard-sub green" data-i18n="stat_urls_sub">↑ total scans</div>
+      </div>
+      <div class="scard">
+        <div class="scard-top">
+          <div class="scard-label" data-i18n="stat_callers">Callers Verified</div>
+          <div class="scard-icon si-cyan">📲</div>
+        </div>
+        <div class="scard-val" id="stat-callers">{{ callers_verified if callers_verified is defined else 0 }}</div>
+        <div class="scard-sub green" data-i18n="stat_callers_sub">↑ Aadhaar lookups</div>
+      </div>
+      <div class="scard">
+        <div class="scard-top">
+          <div class="scard-label" data-i18n="stat_procs">Running Processes</div>
+          <div class="scard-icon si-green">⚙️</div>
+        </div>
+        <div class="scard-val" id="stat-procs">{{ total_procs }}</div>
+        <div class="scard-sub green" data-i18n="stat_procs_sub">↑ live now</div>
+      </div>
+      <div class="scard">
+        <div class="scard-top">
+          <div class="scard-label" data-i18n="stat_safe">Safe URLs</div>
+          <div class="scard-icon si-orange">✅</div>
+        </div>
+        <div class="scard-val" id="stat-safe">{{ safe_count }}</div>
+        <div class="scard-sub green" data-i18n="stat_safe_sub">↑ verified clean</div>
+      </div>
+    </div>
+
+    <!-- Main 2-pane: feed + right col -->
+    <div class="two-pane">
+      <!-- Scan Feed -->
+      <div class="card" style="padding:0;overflow:hidden;">
+        <div class="card-hd" style="padding:14px 18px;border-bottom:1px solid var(--b1);margin-bottom:0;">
+          <div class="card-hd-l">
+            <div class="card-title" data-i18n="feed_title">Recent Scan Feed</div>
+          </div>
+          <div class="live-dot-badge" data-i18n="feed_live">● LIVE</div>
+        </div>
+        <div class="feed-hdr"><span data-i18n="feed_col_url">URL / SOURCE</span><span data-i18n="feed_col_type">TYPE</span><span data-i18n="feed_col_status">STATUS</span><span data-i18n="feed_col_risk">RISK</span></div>
+        {% if recent_phishing %}
+          {% for r in recent_phishing %}
+          {% set is_phish='phish' in r.status.lower() or 'malicious' in r.status.lower() %}
+          {% set is_safe='safe' in r.status.lower() %}
+          <div class="feed-row {% if loop.first %}live-row{% endif %}">
+            <span class="feed-url">{{ r.url[:36] }}{% if r.url|length>36 %}…{% endif %}</span>
+            <span class="feed-type">URL Scan</span>
+            <span><span class="badge {{ 'b-red' if is_phish else ('b-green' if is_safe else 'b-yellow') }}">
+              {{ 'BLOCKED' if is_phish else ('SAFE' if is_safe else 'FLAGGED') }}
+            </span></span>
+            <span><div class="rbar"><div class="rfill {{ 'hi' if is_phish else ('lo' if is_safe else 'md') }}"
+              style="width:{{ 90 if is_phish else (8 if is_safe else 50) }}%"></div></div></span>
+          </div>
+          {% endfor %}
+        {% else %}
+          <div class="feed-empty" data-i18n="feed_empty">No scans yet — click URL Scanner tab to scan a URL.</div>
+        {% endif %}
+      </div>
+
+      <!-- Right column -->
+      <div style="display:flex;flex-direction:column;gap:16px;">
+        <!-- Threat Breakdown donut -->
+        <div class="card">
+          <div class="card-hd" style="margin-bottom:16px;">
+            <div class="card-title" data-i18n="threat_title">Threat Breakdown</div>
+          </div>
+          {% set total = urls_scanned if urls_scanned > 0 else 1 %}
+          {% set pp = ((phishing_found/total)*100)|round|int %}
+          {% set sp2 = ((safe_count/total)*100)|round|int %}
+          {% set sus = [100-pp-sp2,0]|max %}
+          {% set pdeg = (pp*3.6)|round|int %}
+          {% set sdeg = (sp2*3.6)|round|int %}
+          {% set xdeg = 360-pdeg-sdeg %}
+          <div class="donut-wrap">
+            <div class="donut" style="background:conic-gradient(#ef4444 0deg {{ pdeg }}deg,#eab308 {{ pdeg }}deg {{ pdeg+xdeg }}deg,#22c55e {{ pdeg+xdeg }}deg 360deg);">
+              <div class="donut-inner">
+                <div class="donut-pct">{{ [((safe_count/total)*100)|round|int,100]|min }}%</div>
+                <div class="donut-lbl" data-i18n="donut_safe">safe</div>
+              </div>
+            </div>
+            <div class="legend">
+              <div class="legend-item"><div class="legend-left"><div class="legend-dot" style="background:#ef4444"></div><span class="legend-name" data-i18n="legend_phishing">Phishing</span></div><span class="legend-pct">{{ pp }}%</span></div>
+              <div class="legend-item"><div class="legend-left"><div class="legend-dot" style="background:#eab308"></div><span class="legend-name" data-i18n="legend_suspicious">Suspicious</span></div><span class="legend-pct">{{ sus }}%</span></div>
+              <div class="legend-item"><div class="legend-left"><div class="legend-dot" style="background:#22c55e"></div><span class="legend-name" data-i18n="legend_safe">Safe</span></div><span class="legend-pct">{{ sp2 }}%</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Top Processes mini -->
+        <div class="card">
+          <div class="card-hd" style="margin-bottom:12px;">
+            <div class="card-title" data-i18n="top_procs_title">Top Processes</div>
+            <span onclick="goPanel('proc')" style="font-size:11.5px;color:#a78bfa;cursor:pointer;font-weight:600;" data-i18n="view_all">View all →</span>
+          </div>
+          <div class="proc-row hd"><span data-i18n="col_name">Name</span><span data-i18n="col_cpu">CPU</span><span data-i18n="col_mem">Mem</span><span data-i18n="col_action">Action</span></div>
+          {% for p in top_procs %}
+          <div class="proc-row" id="dsh-pid-{{ p.pid }}">
+            <span class="proc-name {{ 'hi' if p.cpu>50 }}">{{ p.name[:14] }}</span>
+            <span {% if p.cpu>50 %}style="color:#fca5a5"{% endif %}>{{ p.cpu }}%</span>
+            <span>{{ p.memory }}%</span>
+            {% if p.cpu>30 %}<button class="proc-kill" onclick="dashKill({{ p.pid }})">Kill</button>
+            {% else %}<span class="proc-safe">Safe</span>{% endif %}
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Access Row -->
+    <div class="qrow">
+      <div class="qcard" onclick="goPanel('phish')">
+        <div class="qico qico-blue">🔗</div>
+        <div><div class="qt" data-i18n="qa_url_title">URL Scanner</div><div class="qs" data-i18n="qa_url_sub">Phishing Check</div></div>
+      </div>
+      <div class="qcard" onclick="goPanel('proc')">
+        <div class="qico qico-green">⚙️</div>
+        <div><div class="qt" data-i18n="qa_proc_title">Processes</div><div class="qs" data-i18n="qa_proc_sub">Live Monitor</div></div>
+      </div>
+      <div class="qcard" onclick="goPanel('exe')">
+        <div class="qico qico-orange">📄</div>
+        <div><div class="qt" data-i18n="qa_exe_title">EXE Analysis</div><div class="qs" data-i18n="qa_exe_sub">Malware Scan</div></div>
+      </div>
+      <div class="qcard" onclick="goPanel('verify')">
+        <div class="qico qico-cyan">📲</div>
+        <div><div class="qt" data-i18n="qa_verify_title">Caller Verify</div><div class="qs" data-i18n="qa_verify_sub">Aadhaar Lookup</div></div>
+      </div>
+    </div>
+  </div><!-- /dash -->
+
+
+  <!-- ══ PANEL: CALLER ID ════════════════════════════════ -->
+
+  <!-- ══ PANEL: URL SCANNER ══════════════════════════════ -->
+  <div class="panel" id="panel-phish">
+    <div class="two-col">
+      <div>
+        <div class="card" style="margin-bottom:14px;">
+          <div class="card-hd">
+            <div class="card-hd-l">
+              <div class="card-ico blue">🌐</div>
+              <div><div class="card-title" data-i18n="phish_scan_title">Scan a URL</div><div class="card-sub" data-i18n="phish_scan_sub">HTTP, HTTPS, shortened links</div></div>
+            </div>
+          </div>
+          <label data-i18n="phish_label">URL to Check</label>
+          <input class="inp blue" id="urlInp" type="text" placeholder="https://example.com">
+          <button onclick="doPhish()" class="btn blue w" id="phishBtn" data-i18n="phish_btn">🚀 Scan Now</button>
+          <div class="url-result" id="urlResult">
+            <div class="vd-row">
+              <div class="vd-ico" id="vIcon"></div>
+              <div><div class="vd-lbl" data-i18n="verdict_label">Verdict</div><div class="vd-txt" id="vText"></div></div>
+            </div>
+            <div class="r-meta">
+              <div class="r-mi"><div class="r-ml" data-i18n="risk_score">Risk Score</div><div class="r-mv" id="vScore"></div></div>
+              <div class="r-mi"><div class="r-ml" data-i18n="url_label">URL</div><div class="r-mv" id="vUrl" style="font-size:11px;word-break:break-all;"></div></div>
+            </div>
+            <div class="sig-lbl" data-i18n="detected_signals">Detected Signals</div>
+            <div class="sig-tags" id="vSigs"></div>
+          </div>
+        </div>
+        <div class="inline-hist-card" id="phishHistCard">
+          <div class="inh-hd" onclick="toggleHist('phish')">
+            <div class="hist-l">
+              <div class="card-ico blue" style="width:32px;height:32px;font-size:14px;">📜</div>
+              <div><div style="font-size:13px;font-weight:700;" data-i18n="phish_history">Scan History</div><div style="font-size:11.5px;color:var(--mu);" data-i18n="phish_history_sub">All previously checked URLs</div></div>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <button onclick="event.stopPropagation();downloadHistPdf('phishing')" class="mini-btn" style="font-size:11px;padding:4px 10px;">⬇ PDF</button>
+              <span class="inh-arrow" id="phishHistArrow">▼</span>
+            </div>
+          </div>
+          <div class="inh-body" id="phishHistBody" style="display:none;">
+            <div class="inh-loading" id="phishHistLoad">Loading…</div>
+            <div class="ovf" id="phishHistTable"></div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-hd">
+          <div class="card-hd-l">
+            <div class="card-ico blue">🔎</div>
+            <div><div class="card-title" data-i18n="what_we_check">What We Check</div></div>
+          </div>
+        </div>
+        {% for ico,lbl,desc in [('🔗','URL Structure','Analyzes length, special chars, subdomains'),('🔒','HTTPS Status','Checks for missing SSL certificate'),('🌍','Domain Age','Flags newly registered domains'),('⚠️','IP in URL','Detects raw IP address URLs'),('@','@ Symbol','Flags misleading @ redirects'),('➕','Hyphen Abuse','Catches hyphen-stuffed domain names')] %}
+        <div style="display:flex;gap:10px;margin-bottom:11px;align-items:flex-start;">
+          <span style="font-size:16px;flex-shrink:0;margin-top:1px;">{{ ico }}</span>
+          <div><div style="font-size:13px;font-weight:600;">{{ lbl }}</div><div style="font-size:11.5px;color:var(--mu);margin-top:2px;">{{ desc }}</div></div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ══ PANEL: PROCESS MONITOR ═════════════════════════ -->
+  <div class="panel" id="panel-proc">
+    <div class="three-col">
+      <div class="scard">
+        <div class="scard-top"><div class="scard-label" data-i18n="stat_total_procs">Total Processes</div><div class="scard-icon si-green">⚙️</div></div>
+        <div class="scard-val" id="pTot">{{ total_procs }}</div>
+        <div class="scard-sub green" data-i18n="running_now">running now</div>
+      </div>
+      <div class="scard">
+        <div class="scard-top"><div class="scard-label" data-i18n="stat_high_cpu">High CPU (&gt;50%)</div><div class="scard-icon si-red">⚠️</div></div>
+        <div class="scard-val" id="pHi">{{ top_procs|selectattr('cpu','greaterthan',50)|list|length }}</div>
+        <div class="scard-sub red" data-i18n="needs_attention">needs attention</div>
+      </div>
+      <div class="scard">
+        <div class="scard-top"><div class="scard-label" data-i18n="stat_avg_mem">Avg Memory</div><div class="scard-icon si-blue">💾</div></div>
+        <div class="scard-val" id="pMem">—</div>
+        <div class="scard-sub muted" data-i18n="system_usage">system usage</div>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <div class="table-top">
+        <div class="table-top-l">
+          <div class="tco">⚡</div>
+          <div><div class="t-title" data-i18n="running_procs">Running Processes</div><div class="t-sub" data-i18n="auto_refresh">Auto-refreshes every 10 seconds</div></div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <button onclick="manualRefresh()" class="mini-btn ac" data-i18n="btn_refresh">🔄 Refresh</button>
+          <button onclick="toggleHist('proc')" class="mini-btn" id="procHistToggleBtn" data-i18n="btn_history">📜 History</button>
+          <div class="pill-live"><span class="spin"></span> <span data-i18n="live_label">LIVE</span></div>
+        </div>
+      </div>
+      <div class="ovf">
+        <table>
+          <thead><tr><th data-i18n="col_pid">PID</th><th data-i18n="col_procname">Process Name</th><th data-i18n="col_cpuusage">CPU Usage</th><th data-i18n="col_mempct">Memory %</th><th data-i18n="col_action2">Action</th></tr></thead>
+          <tbody id="procTbl">
+            {% for p in top_procs %}
+            <tr id="pid-{{ p.pid }}">
+              <td class="pid">{{ p.pid }}</td>
+              <td>{{ p.name }}</td>
+              <td><div class="cpu-w"><div class="cbar"><div class="cfill {{ 'hi' if p.cpu>50 else ('med' if p.cpu>20 else 'low') }}" style="width:{{ [p.cpu,100]|min }}%"></div></div><span class="cnum">{{ p.cpu }}%</span></div></td>
+              <td>{{ p.memory }}%</td>
+              <td><button onclick="killProc({{ p.pid }})" class="kill-btn">✕ Kill</button></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <div class="table-foot">
+        <span><span class="spin"></span> <span data-i18n="auto_refresh_short">Auto-refreshing every 10s</span></span>
+        <span id="lastUpd">—</span>
+      </div>
+    </div>
+    <!-- Inline Process History -->
+    <div class="inline-hist-card" id="procHistCard" style="display:none;margin-top:14px;">
+      <div class="inh-hd" onclick="toggleHist('proc')">
+        <div class="hist-l">
+          <div class="card-ico green" style="width:32px;height:32px;font-size:14px;">📜</div>
+          <div><div style="font-size:13px;font-weight:700;">Process History</div><div style="font-size:11.5px;color:var(--mu);">Last 50 recorded process snapshots</div></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <button onclick="event.stopPropagation();downloadHistPdf('processes')" class="mini-btn" style="font-size:11px;padding:4px 10px;">⬇ PDF</button>
+          <span class="inh-arrow" id="procHistArrow">▲</span>
+        </div>
+      </div>
+      <div class="inh-body" id="procHistBody">
+        <div class="inh-loading" id="procHistLoad">Loading…</div>
+        <div class="ovf" id="procHistTable"></div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ══ PANEL: EXE ANALYSIS ════════════════════════════ -->
+  <div class="panel" id="panel-exe">
+    <div class="two-col">
+      <div>
+        <div class="card" style="margin-bottom:14px;">
+          <div class="card-hd">
+            <div class="card-hd-l">
+              <div class="card-ico orange">📤</div>
+              <div><div class="card-title" data-i18n="exe_upload_title">Upload EXE File</div><div class="card-sub" data-i18n="exe_upload_sub">Max 16 MB · .exe only</div></div>
+            </div>
+          </div>
+          <div class="drop-zone" id="dropZone" onclick="document.getElementById('exeFile').click()">
+            <div class="drop-ico">📁</div>
+            <div class="drop-title" data-i18n="drop_title">Drop your .exe file here</div>
+            <div class="drop-sub" data-i18n="drop_sub">or click to browse</div>
+          </div>
+          <input type="file" id="exeFile" class="drop-input" accept=".exe">
+          <div class="file-sel" id="fileInfo" style="display:none;">
+            <span class="fs-ico">📄</span>
+            <div><div class="fs-name" id="fName">—</div><div class="fs-size" id="fSize">—</div></div>
+          </div>
+          <button onclick="analyzeExe()" class="btn orange w" id="exeBtn" disabled data-i18n="exe_analyze_btn">🔍 Analyze File</button>
+          <div class="exe-result" id="exeResult">
+            <div class="er-row"><span class="er-k" data-i18n="er_file">File</span><span class="er-v" id="erFile">—</span></div>
+            <div class="er-row"><span class="er-k" data-i18n="er_verdict">Verdict</span><span class="er-v" id="erVerdict">—</span></div>
+            <div class="er-row"><span class="er-k" data-i18n="er_confidence">Confidence</span><span class="er-v" id="erConf">—</span></div>
+            <div class="er-row"><span class="er-k" data-i18n="er_hash">SHA256</span><span class="er-v" id="erHash" style="font-size:11px;">—</span></div>
+          </div>
+        </div>
+        <div class="inline-hist-card" id="exeHistCard">
+          <div class="inh-hd" onclick="toggleHist('exe')">
+            <div class="hist-l">
+              <div class="card-ico orange" style="width:32px;height:32px;font-size:14px;">📜</div>
+              <div><div style="font-size:13px;font-weight:700;" data-i18n="exe_history">Analysis History</div><div style="font-size:11.5px;color:var(--mu);" data-i18n="exe_history_sub">All previously scanned EXE files</div></div>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <button onclick="event.stopPropagation();downloadHistPdf('exe')" class="mini-btn" style="font-size:11px;padding:4px 10px;">⬇ PDF</button>
+              <span class="inh-arrow" id="exeHistArrow">▼</span>
+            </div>
+          </div>
+          <div class="inh-body" id="exeHistBody" style="display:none;">
+            <div class="inh-loading" id="exeHistLoad">Loading…</div>
+            <div class="ovf" id="exeHistTable"></div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-hd">
+          <div class="card-hd-l">
+            <div class="card-ico orange">🧠</div>
+            <div><div class="card-title" data-i18n="what_we_detect">What We Detect</div></div>
+          </div>
+        </div>
+        {% for ico,lbl,desc in [('🦠','Malware Signatures','Known virus and trojan signatures'),('💣','Packed Executables','Obfuscated or UPX-packed binaries'),('📡','Network Beacons','Suspicious outbound connection patterns'),('🔐','Crypto Mining','CPU-hijacking cryptocurrency miners'),('🔁','Auto-Run','Registry persistence mechanisms'),('📋','Hash Lookup','SHA256 cross-referenced against threat DBs')] %}
+        <div style="display:flex;gap:10px;margin-bottom:11px;align-items:flex-start;">
+          <span style="font-size:16px;flex-shrink:0;margin-top:1px;">{{ ico }}</span>
+          <div><div style="font-size:13px;font-weight:600;">{{ lbl }}</div><div style="font-size:11.5px;color:var(--mu);margin-top:2px;">{{ desc }}</div></div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ══ PANEL: CALLER VERIFY ═══════════════════════════ -->
+  <div class="panel" id="panel-verify">
+
+    <div class="cv-live">
+      <div style="width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 1.5s infinite;display:inline-block;"></div>
+      <span data-i18n="apk_connected">APK Connected · Listening for calls</span>
+    </div>
+
+    <div class="cv-strip" id="cvCallerStrip">
+      <div class="cv-ava">📱</div>
+      <div class="cv-meta">
+        <div class="cv-meta-lbl" data-i18n="cv_last_caller">Last Received Caller</div>
+        <div class="cv-meta-num" id="cvLastNum">{% if last_caller %}{{ last_caller.number }}{% else %}—{% endif %}</div>
+        <div class="cv-meta-time" id="cvLastTime">{% if last_caller %}Received at {{ last_caller.received_at }}{% else %}No calls received yet{% endif %}</div>
+      </div>
+      {% if last_caller %}
+      <button class="cv-btn-now" onclick="cvAutoVerify('{{ last_caller.number }}')"><span data-i18n="verify_this_caller">🔍 Verify This Caller</span</button>
+      {% endif %}
+    </div>
+
+    <div class="two-col">
+      <div>
+        <div class="card" style="margin-bottom:14px;">
+          <div class="card-hd">
+            <div class="card-hd-l">
+              <div class="card-ico green">🔍</div>
+              <div><div class="card-title" data-i18n="verify_lookup_title">Manual Aadhaar Lookup</div><div class="card-sub" data-i18n="verify_lookup_sub">Enter any 10-digit Indian mobile number</div></div>
+            </div>
+          </div>
+          <label for="cvPhone" data-i18n="cv_mobile_label">Mobile Number</label>
+          <input class="inp green" id="cvPhone" type="text" maxlength="10" inputmode="numeric"
+                 placeholder="e.g. 9876543210" onkeydown="if(event.key==='Enter') cvDoVerify()">
+          <button onclick="cvDoVerify()" class="btn green w" id="cvVerifyBtn">
+            <span id="cvBtnText">🔍 Verify</span>
+          </button>
+          <div class="cv-result" id="cvResultBox">
+            <div class="cv-res-top">
+              <div class="cv-res-ico" id="cvResultIcon"></div>
+              <div><div class="cv-res-title" id="cvResultTitle"></div><div class="cv-res-sub" id="cvResultSub"></div></div>
+            </div>
+            <div class="cv-det-grid" id="cvResultDetails"></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-hd">
+            <div class="card-hd-l">
+              <div class="card-ico green">⚡</div>
+              <div><div class="card-title" data-i18n="how_it_works">How It Works</div></div>
+            </div>
+          </div>
+          <div class="steps">
+            {% for n,t,s in [('1','APK Integration','Your Android app forwards incoming caller numbers in real-time.'),('2','Aadhaar Lookup','We match the number against verified Aadhaar records instantly.'),('3','Identity Result','Get name, gender, State and a verified/unverified verdict.')] %}
+            <div class="step">
+              <div class="step-n" style="background:rgba(34,197,94,.1);border-color:rgba(34,197,94,.22);color:var(--green);">{{ n }}</div>
+              <div><div class="step-title">{{ t }}</div><div class="step-desc">{{ s }}</div></div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-hd">
+          <div class="card-hd-l">
+            <div class="card-ico green">📋</div>
+            <div><div class="card-title" data-i18n="verify_hist_title">Verification History</div><div class="card-sub" data-i18n="verify_hist_sub">Recent Aadhaar lookups</div></div>
+          </div>
+        </div>
+        <div style="overflow-x:auto;">
+          {% if history %}
+          <table class="cv-hist-tbl">
+            <thead><tr><th data-i18n="col_num">#</th><th data-i18n="col_mobile">Mobile</th><th data-i18n="col_name_h">Name</th><th data-i18n="col_status">Status</th><th data-i18n="col_when">When</th></tr></thead>
+            <tbody>
+              {% for h in history %}
+              <tr>
+                <td style="color:var(--mu);font-size:11.5px;">{{ loop.index }}</td>
+                <td><span class="mono-chip">{{ h.number }}</span></td>
+                <td style="font-weight:600;">{{ h.name or '—' }}</td>
+                <td>{% if h.verified %}<span class="status-pill sp-ok">✅ Verified</span>{% else %}<span class="status-pill sp-no">❌ Not Found</span>{% endif %}</td>
+                <td style="color:var(--mu);font-size:11px;">{{ h.checked_at }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          {% else %}
+          <div style="padding:28px;text-align:center;color:var(--mu);font-size:13px;">
+            <div style="font-size:28px;margin-bottom:10px;">🔍</div>
+            <span data-i18n="no_verifications">No verifications yet. Enter a number above to get started.</span>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /content -->
+</div><!-- /app -->
+
+<script>
+/* ── PANELS ── */
+const PANELS = ['dash','phish','proc','exe','verify'];
+
+const PANEL_META = {
+  dash:   {ico:'📊', cls:'',       titleKey:'dash_title',   title:'Security Dashboard',          subKey:'dash_sub',   sub:'Real-time threat intelligence and system overview'},
+  phish:  {ico:'🔗', cls:'blue',   titleKey:'phish_title',  title:'Phishing URL Checker',        subKey:'phish_sub',  sub:'Real-time phishing and threat detection'},
+  proc:   {ico:'⚙️', cls:'green',  titleKey:'proc_title',   title:'Process Monitor',             subKey:'proc_sub',   sub:'Live system process management'},
+  exe:    {ico:'📄', cls:'orange', titleKey:'exe_title',    title:'EXE File Analysis',           subKey:'exe_sub',    sub:'Malware detection and hash analysis'},
+  verify: {ico:'📲', cls:'cyan',   titleKey:'verify_title', title:'Caller Verification',         subKey:'verify_sub', sub:'Aadhaar-powered identity verification for callers'},
+};
+const TAB_COLOR = {dash:'on',phish:'on blue-tab',proc:'on green-tab',exe:'on yellow-tab',verify:'on green-tab'};
+const TAB_IDS   = ['dash','phish','proc','exe','verify'];
+
+
+function goPanel(id) {
+  // 1. Switch active panel
+  PANELS.forEach(p => document.getElementById('panel-'+p).classList.remove('active'));
+  document.getElementById('panel-'+id).classList.add('active');
+  document.getElementById('mainContent').scrollTo({top:0, behavior:'instant'});
+
+  // 2. Update subheader icon / title / subtitle
+  const m = PANEL_META[id] || PANEL_META['dash'];
+  const t = translations[currentLang] || translations.en;
+  const icon = document.getElementById('shIcon');
+  icon.className = 'sh-icon' + (m.cls ? ' ' + m.cls : '');
+  icon.textContent = m.ico;
+  document.getElementById('shTitle').textContent = t[m.titleKey] || m.title;
+  document.getElementById('shSub').textContent   = t[m.subKey]   || m.sub;
+
+  // 3. Update active tab highlight (only tabs that exist in subheader)
+  TAB_IDS.forEach(p => {
+    const tb = document.getElementById('tab-' + p);
+    if (tb) tb.className = 'tab';
+  });
+  const activeTb = document.getElementById('tab-' + id);
+  if (activeTb) {
+    (TAB_COLOR[id] || 'on').split(' ').forEach(c => activeTb.classList.add(c));
+  }
+
+  if (id === 'proc') loadProcesses();
+}
+
+/* ── DASHBOARD KILL ── */
+function dashKill(pid) {
+  if (!confirm('Terminate process '+pid+'?')) return;
+  fetch('/kill-process/'+pid,{method:'POST'}).then(r=>r.json()).then(d=>{
+    if(d.status==='success'){
+      document.getElementById('dsh-pid-'+pid)?.remove();
+      document.getElementById('pid-'+pid)?.remove();
+    } else alert('Error: '+d.message);
+  });
+}
+
+/* ── PROCESSES ── */
+function cpuCls(v){return v>50?'hi':v>20?'med':'low';}
+function loadProcesses(){
+  fetch('/get-processes').then(r=>r.json()).then(data=>{
+    const tb=document.getElementById('procTbl'); tb.innerHTML='';
+    let hi=0,tot=0;
+    data.forEach(p=>{
+      if(p.cpu>50) hi++;
+      tot+=parseFloat(p.memory||0);
+      const w=Math.min(parseFloat(p.cpu),100);
+      const tr=document.createElement('tr'); tr.id='pid-'+p.pid;
+      tr.innerHTML=`<td class="pid">${p.pid}</td><td>${p.name}</td>
+        <td><div class="cpu-w"><div class="cbar"><div class="cfill ${cpuCls(p.cpu)}" style="width:${w}%"></div></div><span class="cnum">${p.cpu}%</span></div></td>
+        <td>${p.memory}%</td>
+        <td><button onclick="killProc(${p.pid})" class="kill-btn">${currentLang==='kn'?'✕ ಅಳಿಸಿ':'✕ Kill'}</button></td>`;
+      tb.appendChild(tr);
+    });
+    document.getElementById('pTot').textContent=data.length;
+    document.getElementById('pHi').textContent=hi;
+    document.getElementById('pMem').textContent=(data.length?(tot/data.length).toFixed(1):0)+'%';
+    const t=translations[currentLang]||translations.en;
+    document.getElementById('lastUpd').textContent=(currentLang==='kn'?'ನವೀಕರಿಸಲಾಗಿದೆ ':'Updated ')+new Date().toLocaleTimeString();
+  }).catch(()=>{});
+}
+function killProc(pid){
+  if(!confirm('Terminate process '+pid+'?')) return;
+  const btn=document.querySelector('#pid-'+pid+' .kill-btn');
+  if(btn){btn.disabled=true;btn.textContent='...';}
+  fetch('/kill-process/'+pid,{method:'POST'}).then(r=>r.json()).then(d=>{
+    if(d.status==='success'){
+      document.getElementById('pid-'+pid)?.remove();
+      document.getElementById('dsh-pid-'+pid)?.remove();
+    } else {alert('Error: '+d.message);if(btn){btn.disabled=false;btn.textContent='✕ Kill';}}
+  }).catch(()=>{if(btn){btn.disabled=false;btn.textContent='✕ Kill';}});
+}
+function manualRefresh(){loadProcesses();}
+setInterval(()=>{if(document.getElementById('panel-proc').classList.contains('active')) loadProcesses();},10000);
+
+/* ── PHISHING ── */
+async function doPhish(){
+  const url=document.getElementById('urlInp').value.trim();
+  if(!url){alert('Enter a URL!');return;}
+  const btn=document.getElementById('phishBtn');
+  btn.disabled=true;btn.innerHTML=currentLang==='kn'?'⏳ ವಿಶ್ಲೇಷಿಸಲಾಗುತ್ತಿದೆ…':'⏳ Analyzing…';
+  document.getElementById('urlResult').style.display='none';
+  try{
+    const res=await fetch('/phishing-check',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url})});
+    const d=await res.json();
+    const isP=/phish|malicious/i.test(d.verdict);const isS=/safe|legit/i.test(d.verdict);
+    const cls=isP?'phishing':isS?'safe':'suspicious';
+    const rb=document.getElementById('urlResult');rb.className='url-result '+cls;rb.style.display='block';
+    document.getElementById('vIcon').textContent=isP?'🚨':isS?'✅':'⚠️';
+    const vt=document.getElementById('vText');vt.className='vd-txt '+cls;vt.textContent=d.verdict;
+    document.getElementById('vScore').textContent=d.score;
+    document.getElementById('vUrl').textContent=url;
+    document.getElementById('vSigs').innerHTML=(d.signals||[]).map(s=>`<span class="sig-tag">${s}</span>`).join('')||'<span class="sig-tag">None</span>';
+  }catch(e){alert('Check failed.');}
+  btn.disabled=false;btn.innerHTML=currentLang==='kn'?'🚀 ಈಗ ಸ್ಕ್ಯಾನ್ ಮಾಡಿ':'🚀 Scan Now';
+}
+document.getElementById('urlInp').addEventListener('keypress',e=>{if(e.key==='Enter')doPhish();});
+
+/* ── EXE ── */
+const dropZone=document.getElementById('dropZone');const fileInput=document.getElementById('exeFile');
+fileInput.addEventListener('change',()=>{const f=fileInput.files[0];if(f) showFileInfo(f);});
+dropZone.addEventListener('dragover',e=>{e.preventDefault();dropZone.classList.add('over');});
+dropZone.addEventListener('dragleave',()=>dropZone.classList.remove('over'));
+dropZone.addEventListener('drop',e=>{
+  e.preventDefault();dropZone.classList.remove('over');
+  const f=e.dataTransfer.files[0];
+  if(f&&f.name.endsWith('.exe')){fileInput.files=e.dataTransfer.files;showFileInfo(f);}else alert('Only .exe files!');
+});
+function showFileInfo(f){
+  document.getElementById('fName').textContent=f.name;
+  document.getElementById('fSize').textContent=(f.size/1024/1024).toFixed(2)+' MB';
+  document.getElementById('fileInfo').style.display='flex';
+  document.getElementById('exeBtn').disabled=false;
+}
+async function analyzeExe(){
+  const f=fileInput.files[0];if(!f){alert('Select a file!');return;}
+  const btn=document.getElementById('exeBtn');btn.disabled=true;btn.innerHTML=currentLang==='kn'?'⏳ ವಿಶ್ಲೇಷಿಸಲಾಗುತ್ತಿದೆ…':'⏳ Analyzing…';
+  document.getElementById('exeResult').style.display='none';
+  const fd=new FormData();fd.append('file',f);
+  try{
+    const res=await fetch('/analyze-exe',{method:'POST',body:fd});const d=await res.json();
+    if(d.status==='success'){
+      const isM=/malicious/i.test(d.verdict);const isS=/safe/i.test(d.verdict);
+      const cls=isM?'malicious':isS?'safe':'suspicious';
+      const er=document.getElementById('exeResult');er.className='exe-result '+cls;er.style.display='block';
+      document.getElementById('erFile').textContent=f.name;
+      const ev=document.getElementById('erVerdict');ev.textContent=d.verdict;ev.className='er-v '+cls;
+      document.getElementById('erConf').textContent=(d.confidence*100).toFixed(1)+'%';
+      document.getElementById('erHash').textContent=d.hash;
+    }else{alert(d.message||'Analysis failed.');}
+  }catch(e){alert('Request failed.');}
+  btn.disabled=false;btn.innerHTML=currentLang==='kn'?'🔍 ಫೈಲ್ ವಿಶ್ಲೇಷಿಸಿ':'🔍 Analyze File';
+}
+
+/* ── CALLER VERIFY ── */
+async function cvDoVerify(){
+  const num=document.getElementById('cvPhone').value.trim();
+  if(!/^[6-9]\d{9}$/.test(num)){cvShowResult('not-verified','⚠️','Invalid Number','Enter a valid 10-digit Indian mobile number.',[]);return;}
+  const btn=document.getElementById('cvVerifyBtn');btn.disabled=true;
+  document.getElementById('cvBtnText').textContent=currentLang==='kn'?'⏳ ಪರಿಶೀಲಿಸಲಾಗುತ್ತಿದೆ…':'⏳ Verifying…';
+  try{
+    const res=await fetch('/api/verify-caller',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({number:num})});
+    const data=await res.json();
+    if(data.verified){
+      cvShowResult('verified','✅','Identity Verified',`Aadhaar record found for ${num}`,[
+        {label:'Full Name',value:data.name},{label:'Gender',value:data.gender},
+        {label:'State',value:data.state},{label:'Mobile',value:num}
+      ]);
+    }else{cvShowResult('not-verified','❌','Not Verified',data.message||'No Aadhaar record found.',[]);}
+    if(data.reload) location.reload();
+  }catch(e){cvShowResult('not-verified','⚠️','Error','Could not reach server. Try again.',[]);}
+  btn.disabled=false;document.getElementById('cvBtnText').textContent=currentLang==='kn'?'🔍 ಪರಿಶೀಲಿಸಿ':'🔍 Verify';
+}
+function cvAutoVerify(num){document.getElementById('cvPhone').value=num;cvDoVerify();}
+function cvShowResult(type,icon,title,sub,details){
+  const box=document.getElementById('cvResultBox');box.className='cv-result '+type;
+  document.getElementById('cvResultIcon').textContent=icon;
+  const t=document.getElementById('cvResultTitle');t.className='cv-res-title '+(type==='verified'?'ok':'no');t.textContent=title;
+  document.getElementById('cvResultSub').textContent=sub;
+  document.getElementById('cvResultDetails').innerHTML=details.map(d=>`<div class="cv-det-chip"><div class="cv-det-lbl">${d.label}</div><div class="cv-det-val">${d.value}</div></div>`).join('');
+  box.style.display='block';
+}
+let cvLastSeen='';
+setInterval(async()=>{
+  if(!document.getElementById('panel-verify').classList.contains('active')) return;
+  try{
+    const res=await fetch('/api/last-caller');const data=await res.json();
+    if(data.number&&data.number!==cvLastSeen){
+      cvLastSeen=data.number;
+      document.getElementById('cvLastNum').textContent=data.number;
+      document.getElementById('cvLastTime').textContent=(currentLang==='kn'?'ಸ್ವೀಕರಿಸಲಾಗಿದೆ ':'Received at ')+data.received_at;
+      const strip=document.getElementById('cvCallerStrip');
+      let vbtn=strip.querySelector('.cv-btn-now');
+      if(!vbtn){vbtn=document.createElement('button');vbtn.className='cv-btn-now';strip.appendChild(vbtn);}
+      vbtn.textContent=currentLang==='kn'?'🔍 ಈ ಕರೆಯನ್ನು ಪರಿಶೀಲಿಸಿ':'🔍 Verify This Caller';vbtn.onclick=()=>cvAutoVerify(data.number);
+      strip.style.boxShadow='0 0 0 2px rgba(34,197,94,.4)';
+      setTimeout(()=>strip.style.boxShadow='',2500);
+    }
+  }catch{}
+},5000);
+
+/* ── STATS REFRESH ── */
+setInterval(()=>{
+  fetch('/dashboard-stats').then(r=>r.json()).then(d=>{
+    if(d.error) return;
+    const el=id=>document.getElementById(id);
+    if(el('stat-urls')) el('stat-urls').textContent=d.urls_scanned;
+    if(el('stat-threats')) el('stat-threats').textContent=d.phishing_found;
+    if(el('stat-procs')) el('stat-procs').textContent=d.total_procs;
+    if(el('pTot')) el('pTot').textContent=d.total_procs;
+  }).catch(()=>{});
+},30000);
+
+/* ── PROFILE MENU ── */
+function toggleProfileMenu(){
+  document.getElementById('profileWrap').classList.toggle('open');
+}
+document.addEventListener('click',function(e){
+  const wrap=document.getElementById('profileWrap');
+  if(!wrap.contains(e.target)) wrap.classList.remove('open');
+});
+
+/* ── THEME TOGGLE ── */
+const translations = {
+  en: {
+    // profile menu
+    pm_role:'TrustCheck User', themeLabel_dark:'Dark Mode', themeLabel_light:'Light Mode',
+    themeIco_dark:'🌙', themeIco_light:'☀️', logoutLabel:'Logout', lang_label:'Language',
+    // tabs
+    tab_overview:'📊 Overview', tab_callerid:'📞 Caller ID', tab_urlscanner:'🔗 URL Scanner',
+    tab_processes:'⚙️ Processes', tab_exe:'📄 EXE Analysis', tab_verify:'📲 Caller Verify',
+    // dashboard
+    dash_title:'Security Dashboard', dash_sub:'Real-time threat intelligence and system overview',
+    stat_urls:'URLs Scanned', stat_urls_sub:'↑ total scans',
+    stat_callers:'Callers Verified', stat_callers_sub:'↑ Aadhaar lookups',
+    stat_threats:'Threats Detected', stat_threats_warn:'⚠ phishing found', stat_threats_ok:'✓ all clear',
+    stat_procs:'Running Processes', stat_procs_sub:'↑ live now',
+    stat_safe:'Safe URLs', stat_safe_sub:'↑ verified clean',
+    feed_title:'Recent Scan Feed', feed_live:'● LIVE',
+    feed_col_url:'URL / SOURCE', feed_col_type:'TYPE', feed_col_status:'STATUS', feed_col_risk:'RISK',
+    feed_empty:'No scans yet — click URL Scanner tab to scan a URL.',
+    threat_title:'Threat Breakdown', donut_safe:'safe',
+    legend_phishing:'Phishing', legend_suspicious:'Suspicious', legend_safe:'Safe',
+    top_procs_title:'Top Processes', view_all:'View all →',
+    col_name:'Name', col_cpu:'CPU', col_mem:'Mem', col_action:'Action',
+    qa_callerid_sub:'ML Prediction', qa_url_title:'URL Scanner', qa_url_sub:'Phishing Check',
+    qa_proc_title:'Processes', qa_proc_sub:'Live Monitor',
+    qa_exe_title:'EXE Analysis', qa_exe_sub:'Malware Scan',
+    qa_verify_title:'Caller Verify', qa_verify_sub:'Aadhaar Lookup',
+    // caller id panel
+    predict_title:'Caller ID Prediction', predict_sub:'ML-powered number analysis and risk assessment',
+    predict_enter:'Enter a Number', predict_enter_sub:'Phone / ID lookup',
+    predict_label:'Phone / ID Number', predict_btn:'🚀 Predict Now',
+    predict_sample:'Sample Output', how_it_works:'How It Works',
+    // url scanner
+    phish_title:'Phishing URL Checker', phish_sub:'Real-time phishing and threat detection',
+    phish_scan_title:'Scan a URL', phish_scan_sub:'HTTP, HTTPS, shortened links',
+    phish_label:'URL to Check', phish_btn:'🚀 Scan Now',
+    verdict_label:'Verdict', risk_score:'Risk Score', url_label:'URL', detected_signals:'Detected Signals',
+    phish_history:'View Scan History', phish_history_sub:'All previously checked URLs',
+    what_we_check:'What We Check',
+    // process monitor
+    proc_title:'Process Monitor', proc_sub:'Live system process management',
+    stat_total_procs:'Total Processes', stat_high_cpu:'High CPU (>50%)', stat_avg_mem:'Avg Memory',
+    running_procs:'Running Processes', auto_refresh:'Auto-refreshes every 10 seconds',
+    col_pid:'PID', col_procname:'Process Name', col_cpuusage:'CPU Usage', col_mempct:'Memory %', col_action2:'Action',
+    running_now:'running now', needs_attention:'needs attention', system_usage:'system usage',
+    btn_refresh:'🔄 Refresh', btn_history:'📜 History', live_label:'LIVE',
+    auto_refresh_short:'Auto-refreshing every 10s',
+    // exe analysis
+    exe_title:'EXE File Analysis', exe_sub:'Malware detection and hash analysis',
+    exe_upload_title:'Upload EXE File', exe_upload_sub:'Max 16 MB · .exe only',
+    drop_title:'Drop your .exe file here', drop_sub:'or click to browse',
+    exe_analyze_btn:'🔍 Analyze File',
+    er_file:'File', er_verdict:'Verdict', er_confidence:'Confidence', er_hash:'SHA256',
+    exe_history:'View Analysis History', exe_history_sub:'All previously scanned EXE files',
+    what_we_detect:'What We Detect',
+    // caller verify
+    verify_title:'Caller Verification', verify_sub:'Aadhaar-powered identity verification for callers',
+    apk_connected:'APK Connected · Listening for calls',
+    cv_last_caller:'Last Received Caller',
+    cv_mobile_label:'Mobile Number',
+    verify_this_caller:'🔍 Verify This Caller',
+    verify_lookup_title:'Manual Aadhaar Lookup', verify_lookup_sub:'Enter any 10-digit Indian mobile number',
+    verify_hist_title:'Verification History', verify_hist_sub:'Recent Aadhaar lookups',
+    col_num:'#', col_mobile:'Mobile', col_name_h:'Name', col_status:'Status', col_when:'When',
+    no_verifications:'No verifications yet. Enter a number above to get started.',
+  },
+  kn: {
+    // profile menu
+    pm_role:'ಟ್ರಸ್ಟ್‌ಚೆಕ್ ಬಳಕೆದಾರ', themeLabel_dark:'ಡಾರ್ಕ್ ಮೋಡ್', themeLabel_light:'ಲೈಟ್ ಮೋಡ್',
+    themeIco_dark:'🌙', themeIco_light:'☀️', logoutLabel:'ಲಾಗ್ ಔಟ್', lang_label:'ಭಾಷೆ',
+    // tabs
+    tab_overview:'📊 ಅವಲೋಕನ', tab_callerid:'📞 ಕರೆ ಗುರುತು', tab_urlscanner:'🔗 URL ಸ್ಕ್ಯಾನರ್',
+    tab_processes:'⚙️ ಪ್ರಕ್ರಿಯೆಗಳು', tab_exe:'📄 EXE ವಿಶ್ಲೇಷಣೆ', tab_verify:'📲 ಕರೆ ಪರಿಶೀಲನೆ',
+    // dashboard
+    dash_title:'ಭದ್ರತಾ ಡ್ಯಾಶ್‌ಬೋರ್ಡ್', dash_sub:'ನೈಜ-ಸಮಯದ ಬೆದರಿಕೆ ಗುಪ್ತಚರ ಮತ್ತು ವ್ಯವಸ್ಥೆ ಅವಲೋಕನ',
+    stat_urls:'URL ಸ್ಕ್ಯಾನ್ ಮಾಡಲಾಗಿದೆ', stat_urls_sub:'↑ ಒಟ್ಟು ಸ್ಕ್ಯಾನ್‌ಗಳು',
+    stat_callers:'ಕರೆ ಪರಿಶೀಲನೆಗಳು', stat_callers_sub:'↑ ಆಧಾರ್ ಹುಡುಕಾಟಗಳು',
+    stat_threats:'ಬೆದರಿಕೆಗಳು ಪತ್ತೆಯಾದವು', stat_threats_warn:'⚠ ಫಿಶಿಂಗ್ ಕಂಡುಬಂತು', stat_threats_ok:'✓ ಎಲ್ಲವೂ ಸುರಕ್ಷಿತ',
+    stat_procs:'ಚಾಲನೆಯಲ್ಲಿರುವ ಪ್ರಕ್ರಿಯೆಗಳು', stat_procs_sub:'↑ ಈಗ ನೇರ',
+    stat_safe:'ಸುರಕ್ಷಿತ URL ಗಳು', stat_safe_sub:'↑ ಪರಿಶೀಲಿಸಲಾಗಿದೆ',
+    feed_title:'ಇತ್ತೀಚಿನ ಸ್ಕ್ಯಾನ್ ಫೀಡ್', feed_live:'● ನೇರ',
+    feed_col_url:'URL / ಮೂಲ', feed_col_type:'ವಿಧ', feed_col_status:'ಸ್ಥಿತಿ', feed_col_risk:'ಅಪಾಯ',
+    feed_empty:'ಇನ್ನೂ ಸ್ಕ್ಯಾನ್ ಇಲ್ಲ — URL ಸ್ಕ್ಯಾನ್ ಮಾಡಲು URL ಸ್ಕ್ಯಾನರ್ ಟ್ಯಾಬ್ ಕ್ಲಿಕ್ ಮಾಡಿ.',
+    threat_title:'ಬೆದರಿಕೆ ವಿಭಜನೆ', donut_safe:'ಸುರಕ್ಷಿತ',
+    legend_phishing:'ಫಿಶಿಂಗ್', legend_suspicious:'ಅನುಮಾನಾಸ್ಪದ', legend_safe:'ಸುರಕ್ಷಿತ',
+    top_procs_title:'ಉನ್ನತ ಪ್ರಕ್ರಿಯೆಗಳು', view_all:'ಎಲ್ಲವನ್ನೂ ನೋಡಿ →',
+    col_name:'ಹೆಸರು', col_cpu:'CPU', col_mem:'ಮೆಮೊರಿ', col_action:'ಕ್ರಿಯೆ',
+    qa_callerid_sub:'ML ಭವಿಷ್ಯ', qa_url_title:'URL ಸ್ಕ್ಯಾನರ್', qa_url_sub:'ಫಿಶಿಂಗ್ ಪರೀಕ್ಷೆ',
+    qa_proc_title:'ಪ್ರಕ್ರಿಯೆಗಳು', qa_proc_sub:'ನೇರ ಮಾನಿಟರ್',
+    qa_exe_title:'EXE ವಿಶ್ಲೇಷಣೆ', qa_exe_sub:'ಮಾಲ್‌ವೇರ್ ಸ್ಕ್ಯಾನ್',
+    qa_verify_title:'ಕರೆ ಪರಿಶೀಲನೆ', qa_verify_sub:'ಆಧಾರ್ ಹುಡುಕಾಟ',
+    // caller id panel
+    predict_title:'ಕರೆ ಗುರುತು ಭವಿಷ್ಯ', predict_sub:'ML-ಚಾಲಿತ ಸಂಖ್ಯೆ ವಿಶ್ಲೇಷಣೆ ಮತ್ತು ಅಪಾಯ ಮೌಲ್ಯಮಾಪನ',
+    predict_enter:'ಸಂಖ್ಯೆ ನಮೂದಿಸಿ', predict_enter_sub:'ಫೋನ್ / ID ಹುಡುಕಾಟ',
+    predict_label:'ಫೋನ್ / ID ಸಂಖ್ಯೆ', predict_btn:'🚀 ಈಗ ಭವಿಷ್ಯ ನುಡಿ',
+    predict_sample:'ಮಾದರಿ ಫಲಿತಾಂಶ', how_it_works:'ಇದು ಹೇಗೆ ಕಾರ್ಯನಿರ್ವಹಿಸುತ್ತದೆ',
+    // url scanner
+    phish_title:'ಫಿಶಿಂಗ್ URL ಪರೀಕ್ಷಕ', phish_sub:'ನೈಜ-ಸಮಯದ ಫಿಶಿಂಗ್ ಮತ್ತು ಬೆದರಿಕೆ ಪತ್ತೆ',
+    phish_scan_title:'URL ಸ್ಕ್ಯಾನ್ ಮಾಡಿ', phish_scan_sub:'HTTP, HTTPS, ಸಂಕ್ಷಿಪ್ತ ಲಿಂಕ್‌ಗಳು',
+    phish_label:'ಪರೀಕ್ಷಿಸಲು URL', phish_btn:'🚀 ಈಗ ಸ್ಕ್ಯಾನ್ ಮಾಡಿ',
+    verdict_label:'ತೀರ್ಪು', risk_score:'ಅಪಾಯ ಸ್ಕೋರ್', url_label:'URL', detected_signals:'ಪತ್ತೆಯಾದ ಸಂಕೇತಗಳು',
+    phish_history:'ಸ್ಕ್ಯಾನ್ ಇತಿಹಾಸ ನೋಡಿ', phish_history_sub:'ಹಿಂದೆ ಪರೀಕ್ಷಿಸಿದ ಎಲ್ಲಾ URL ಗಳು',
+    what_we_check:'ನಾವು ಏನು ಪರೀಕ್ಷಿಸುತ್ತೇವೆ',
+    // process monitor
+    proc_title:'ಪ್ರಕ್ರಿಯೆ ಮಾನಿಟರ್', proc_sub:'ನೇರ ಸಿಸ್ಟಮ್ ಪ್ರಕ್ರಿಯೆ ನಿರ್ವಹಣೆ',
+    stat_total_procs:'ಒಟ್ಟು ಪ್ರಕ್ರಿಯೆಗಳು', stat_high_cpu:'ಹೆಚ್ಚಿನ CPU (>50%)', stat_avg_mem:'ಸರಾಸರಿ ಮೆಮೊರಿ',
+    running_procs:'ಚಾಲನೆಯಲ್ಲಿರುವ ಪ್ರಕ್ರಿಯೆಗಳು', auto_refresh:'ಪ್ರತಿ 10 ಸೆಕೆಂಡಿಗೆ ಸ್ವಯಂ-ರಿಫ್ರೆಶ್',
+    col_pid:'PID', col_procname:'ಪ್ರಕ್ರಿಯೆ ಹೆಸರು', col_cpuusage:'CPU ಬಳಕೆ', col_mempct:'ಮೆಮೊರಿ %', col_action2:'ಕ್ರಿಯೆ',
+    running_now:'ಈಗ ಚಾಲನೆಯಲ್ಲಿದೆ', needs_attention:'ಗಮನ ಬೇಕಾಗಿದೆ', system_usage:'ಸಿಸ್ಟಮ್ ಬಳಕೆ',
+    btn_refresh:'🔄 ರಿಫ್ರೆಶ್', btn_history:'📜 ಇತಿಹಾಸ', live_label:'ನೇರ',
+    auto_refresh_short:'ಪ್ರತಿ 10 ಸೆಕೆಂಡಿಗೆ ರಿಫ್ರೆಶ್',
+    // exe analysis
+    exe_title:'EXE ಫೈಲ್ ವಿಶ್ಲೇಷಣೆ', exe_sub:'ಮಾಲ್‌ವೇರ್ ಪತ್ತೆ ಮತ್ತು ಹ್ಯಾಶ್ ವಿಶ್ಲೇಷಣೆ',
+    exe_upload_title:'EXE ಫೈಲ್ ಅಪ್‌ಲೋಡ್ ಮಾಡಿ', exe_upload_sub:'ಗರಿಷ್ಠ 16 MB · ಕೇವಲ .exe',
+    drop_title:'ನಿಮ್ಮ .exe ಫೈಲ್ ಇಲ್ಲಿ ಡ್ರಾಪ್ ಮಾಡಿ', drop_sub:'ಅಥವಾ ಬ್ರೌಸ್ ಮಾಡಲು ಕ್ಲಿಕ್ ಮಾಡಿ',
+    exe_analyze_btn:'🔍 ಫೈಲ್ ವಿಶ್ಲೇಷಿಸಿ',
+    er_file:'ಫೈಲ್', er_verdict:'ತೀರ್ಪು', er_confidence:'ವಿಶ್ವಾಸ', er_hash:'SHA256',
+    exe_history:'ವಿಶ್ಲೇಷಣೆ ಇತಿಹಾಸ ನೋಡಿ', exe_history_sub:'ಹಿಂದೆ ಸ್ಕ್ಯಾನ್ ಮಾಡಿದ ಎಲ್ಲಾ EXE ಫೈಲ್‌ಗಳು',
+    what_we_detect:'ನಾವು ಏನು ಪತ್ತೆ ಮಾಡುತ್ತೇವೆ',
+    // caller verify
+    verify_title:'ಕರೆ ಪರಿಶೀಲನೆ', verify_sub:'ಆಧಾರ್-ಆಧಾರಿತ ಗುರುತಿನ ಪರಿಶೀಲನೆ',
+    apk_connected:'APK ಸಂಪರ್ಕಗೊಂಡಿದೆ · ಕರೆಗಳನ್ನು ಕೇಳುತ್ತಿದೆ',
+    cv_last_caller:'ಕೊನೆಯ ಸ್ವೀಕರಿಸಿದ ಕರೆ',
+    cv_mobile_label:'ಮೊಬೈಲ್ ಸಂಖ್ಯೆ',
+    verify_this_caller:'🔍 ಈ ಕರೆಯನ್ನು ಪರಿಶೀಲಿಸಿ',
+    verify_lookup_title:'ಹಸ್ತಚಾಲಿತ ಆಧಾರ್ ಹುಡುಕಾಟ', verify_lookup_sub:'ಯಾವುದೇ 10-ಅಂಕಿ ಭಾರತೀಯ ಮೊಬೈಲ್ ಸಂಖ್ಯೆ ನಮೂದಿಸಿ',
+    verify_hist_title:'ಪರಿಶೀಲನೆ ಇತಿಹಾಸ', verify_hist_sub:'ಇತ್ತೀಚಿನ ಆಧಾರ್ ಹುಡುಕಾಟಗಳು',
+    col_num:'#', col_mobile:'ಮೊಬೈಲ್', col_name_h:'ಹೆಸರು', col_status:'ಸ್ಥಿತಿ', col_when:'ಯಾವಾಗ',
+    no_verifications:'ಇನ್ನೂ ಪರಿಶೀಲನೆ ಇಲ್ಲ. ಪ್ರಾರಂಭಿಸಲು ಮೇಲೆ ಸಂಖ್ಯೆ ನಮೂದಿಸಿ.',
+  }
+};
+let currentLang = localStorage.getItem('tc-lang') || 'en';
+
+function applyLang(lang){
+  const t = translations[lang] || translations.en;
+  const isLight = document.documentElement.classList.contains('light');
+
+  // Apply all data-i18n elements
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if(t[key] !== undefined) el.textContent = t[key];
+  });
+
+  // Special: theme label/icon depend on current mode
+  const tl = document.getElementById('themeLabel');
+  const ti = document.getElementById('themeIco');
+  if(tl) tl.textContent = isLight ? t.themeLabel_light : t.themeLabel_dark;
+  if(ti) ti.textContent = isLight ? t.themeIco_light : t.themeIco_dark;
+
+  // Update Noto Kannada font for body when Kannada selected
+  document.body.style.fontFamily = lang === 'kn'
+    ? "'Noto Sans Kannada', 'Inter', sans-serif"
+    : "'Inter', sans-serif";
+
+  document.getElementById('langSelect').value = lang;
+  document.documentElement.setAttribute('lang', lang === 'kn' ? 'kn' : 'en');
+  // Refresh subheader title/sub for current panel
+  const activePanel = PANELS.find(p => document.getElementById('panel-'+p)?.classList.contains('active')) || 'dash';
+  const mm = PANEL_META[activePanel];
+  if(mm){
+    const tt = translations[lang] || translations.en;
+    const ste = document.getElementById('shTitle'); if(ste) ste.textContent = tt[mm.titleKey] || mm.title;
+    const sse = document.getElementById('shSub');   if(sse) sse.textContent = tt[mm.subKey]   || mm.sub;
+  }
+}
+
+function changeLang(lang){
+  currentLang = lang;
+  localStorage.setItem('tc-lang', lang);
+  applyLang(lang);
+}
+
+(function(){
+  // Load Noto Sans Kannada for proper rendering
+  const link = document.createElement('link');
+  link.rel = 'stylesheet';
+  link.href = 'https://fonts.googleapis.com/css2?family=Noto+Sans+Kannada:wght@400;500;600;700;800&display=swap';
+  document.head.appendChild(link);
+
+  const savedTheme = localStorage.getItem('tc-theme');
+  if(savedTheme === 'light') document.documentElement.classList.add('light');
+  const savedLang = localStorage.getItem('tc-lang') || 'en';
+  currentLang = savedLang;
+  applyLang(savedLang);
+})();
+
+function toggleTheme(){
+  const html = document.documentElement;
+  html.classList.toggle('light');
+  localStorage.setItem('tc-theme', html.classList.contains('light') ? 'light' : 'dark');
+  applyLang(currentLang);
+}
+
+/* pulse anim */
+const style=document.createElement('style');
+style.textContent='@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}';
+document.head.appendChild(style);
+
+/* ── Inline History Toggle & Fetch ── */
+const _histOpen = {phish:false, exe:false, proc:false};
+const _histLoaded = {phish:false, exe:false, proc:false};
+
+function toggleHist(type) {
+  const open = !_histOpen[type];
+  _histOpen[type] = open;
+
+  if (type === 'phish') {
+    const body = document.getElementById('phishHistBody');
+    const arrow = document.getElementById('phishHistArrow');
+    body.style.display = open ? 'block' : 'none';
+    arrow.style.transform = open ? 'rotate(180deg)' : '';
+    if (open && !_histLoaded.phish) fetchPhishHist();
+  } else if (type === 'exe') {
+    const body = document.getElementById('exeHistBody');
+    const arrow = document.getElementById('exeHistArrow');
+    body.style.display = open ? 'block' : 'none';
+    arrow.style.transform = open ? 'rotate(180deg)' : '';
+    if (open && !_histLoaded.exe) fetchExeHist();
+  } else if (type === 'proc') {
+    const card = document.getElementById('procHistCard');
+    const arrow = document.getElementById('procHistArrow');
+    const showing = card.style.display !== 'none';
+    card.style.display = showing ? 'none' : 'block';
+    _histOpen.proc = !showing;
+    if (!showing) {
+      arrow.style.transform = 'rotate(180deg)';
+      if (!_histLoaded.proc) fetchProcHist();
+    } else {
+      arrow.style.transform = '';
+    }
+  }
+}
+
+function fetchPhishHist() {
+  fetch('/api/history/phishing')
+    .then(r => r.json())
+    .then(data => {
+      _histLoaded.phish = true;
+      document.getElementById('phishHistLoad').style.display = 'none';
+      const wrap = document.getElementById('phishHistTable');
+      if (!data.length) {
+        wrap.innerHTML = '<div class="inh-empty">📭 No phishing scans recorded yet.</div>';
+        return;
+      }
+      wrap.innerHTML = `<table>
+        <thead><tr><th>URL</th><th>Verdict</th><th>Confidence</th><th>Timestamp</th></tr></thead>
+        <tbody>${data.map(r => {
+          const isPhish = /phish|malicious/i.test(r.status);
+          const isSafe  = /safe|legit/i.test(r.status);
+          const cls     = isPhish ? 'phishing' : (isSafe ? 'safe' : 'suspicious');
+          const ico     = isPhish ? '🚨' : (isSafe ? '✅' : '⚠️');
+          const pct     = parseFloat((r.confidence||'0').replace('%','')) || 0;
+          return `<tr>
+            <td style="font-family:monospace;font-size:.75rem;color:var(--mu);max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${r.url}">${r.url}</td>
+            <td><span class="verdict-badge ${cls}">${ico} ${r.status}</span></td>
+            <td><div style="display:flex;align-items:center;gap:7px;">
+              <div style="height:4px;width:60px;background:rgba(255,255,255,.08);border-radius:4px;">
+                <div style="height:100%;width:${pct}%;background:var(--blue);border-radius:4px;"></div>
+              </div>
+              <span style="font-size:.75rem;color:var(--mu)">${r.confidence}</span>
+            </div></td>
+            <td style="font-size:.75rem;color:var(--mu);white-space:nowrap;">${r.created_at}</td>
+          </tr>`;
+        }).join('')}</tbody>
+      </table>`;
+    })
+    .catch(() => { document.getElementById('phishHistLoad').textContent = 'Failed to load history.'; });
+}
+
+function fetchExeHist() {
+  fetch('/api/history/exe')
+    .then(r => r.json())
+    .then(data => {
+      _histLoaded.exe = true;
+      document.getElementById('exeHistLoad').style.display = 'none';
+      const wrap = document.getElementById('exeHistTable');
+      if (!data.length) {
+        wrap.innerHTML = '<div class="inh-empty">📭 No EXE files analyzed yet.</div>';
+        return;
+      }
+      wrap.innerHTML = `<table>
+        <thead><tr><th>File</th><th>SHA256</th><th>Verdict</th><th>Confidence</th><th>Timestamp</th></tr></thead>
+        <tbody>${data.map(r => {
+          const isMal  = /malicious/i.test(r.verdict);
+          const isSafe = /safe|clean/i.test(r.verdict);
+          const cls    = isMal ? 'malicious' : (isSafe ? 'safe' : 'suspicious');
+          const ico    = isMal ? '🚨' : (isSafe ? '✅' : '⚠️');
+          const pct    = parseFloat((r.confidence||'0').replace('%','')) || 0;
+          return `<tr>
+            <td style="font-weight:500;">⚙️ ${r.exe_name}</td>
+            <td style="font-family:monospace;font-size:.7rem;color:var(--mu);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${r.hash}">${r.hash}</td>
+            <td><span class="verdict-badge ${cls}">${ico} ${r.verdict}</span></td>
+            <td><div style="display:flex;align-items:center;gap:7px;">
+              <div style="height:4px;width:60px;background:rgba(255,255,255,.08);border-radius:4px;">
+                <div style="height:100%;width:${pct}%;background:var(--yellow);border-radius:4px;"></div>
+              </div>
+              <span style="font-size:.75rem;color:var(--mu)">${r.confidence}</span>
+            </div></td>
+            <td style="font-size:.75rem;color:var(--mu);white-space:nowrap;">${r.created_at}</td>
+          </tr>`;
+        }).join('')}</tbody>
+      </table>`;
+    })
+    .catch(() => { document.getElementById('exeHistLoad').textContent = 'Failed to load history.'; });
+}
+
+function fetchProcHist() {
+  fetch('/api/history/processes')
+    .then(r => r.json())
+    .then(data => {
+      _histLoaded.proc = true;
+      document.getElementById('procHistLoad').style.display = 'none';
+      const wrap = document.getElementById('procHistTable');
+      if (!data.length) {
+        wrap.innerHTML = '<div class="inh-empty">📭 No process history recorded yet.</div>';
+        return;
+      }
+      wrap.innerHTML = `<table>
+        <thead><tr><th>PID</th><th>Process Name</th><th>CPU</th><th>Memory %</th><th>Timestamp</th></tr></thead>
+        <tbody>${data.map(r => {
+          const cpu = parseFloat(r.cpu) || 0;
+          const cls = cpu > 50 ? 'hi' : (cpu > 20 ? 'med' : 'low');
+          const color = cpu > 50 ? 'var(--red)' : (cpu > 20 ? 'var(--yellow)' : 'var(--green)');
+          return `<tr>
+            <td style="font-family:monospace;font-size:.78rem;color:var(--mu);">${r.pid}</td>
+            <td style="font-weight:500;">${r.name}</td>
+            <td><div style="display:flex;align-items:center;gap:7px;">
+              <div style="height:4px;width:60px;background:rgba(255,255,255,.08);border-radius:4px;">
+                <div style="height:100%;width:${Math.min(cpu,100)}%;background:${color};border-radius:4px;"></div>
+              </div>
+              <span style="font-size:.75rem;color:var(--mu)">${r.cpu}%</span>
+            </div></td>
+            <td>${r.memory}%</td>
+            <td style="font-size:.75rem;color:var(--mu);white-space:nowrap;">${r.created_at}</td>
+          </tr>`;
+        }).join('')}</tbody>
+      </table>`;
+    })
+    .catch(() => { document.getElementById('procHistLoad').textContent = 'Failed to load history.'; });
+}
+
+
+/* ── PDF Download for history ── */
+function downloadHistPdf(type) {
+  window.open('/api/history/' + type + '/pdf', '_blank');
+}
+
+</script>
+
+<!-- [F7] Flask-SocketIO Real-Time Alerts -->
+<script src="https://cdn.socket.io/4.6.0/socket.io.min.js"></script>
+<script>
+(function() {
+  var container = document.createElement('div');
+  container.id = 'tc-alert-container';
+  container.style.cssText = 'position:fixed;top:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:10px;max-width:360px;';
+  document.body.appendChild(container);
+
+  function showToast(data) {
+    var icons  = {phishing:'⚠️', malware:'🦠', anomaly:'👁️', honeyword:'🍯'};
+    var clrs   = {phishing:'#d63031', malware:'#e17055', anomaly:'#6c5ce7', honeyword:'#fd79a8'};
+    var icon   = icons[data.type]  || '🔔';
+    var color  = clrs[data.type]   || '#0984e3';
+    var toast  = document.createElement('div');
+    toast.style.cssText = 'background:#111;border-radius:10px;padding:14px 16px;box-shadow:0 4px 20px rgba(0,0,0,.6);border-left:4px solid '+color+';font-size:13px;line-height:1.5;position:relative;animation:tcSlide .3s ease;color:#e0e0e0;';
+    toast.innerHTML = '<b style="color:'+color+'">'+icon+' TrustCheck Alert</b><br>'+data.message+'<div style="color:#888;font-size:11px;margin-top:4px">'+(data.timestamp||'')+'</div>';
+    var x = document.createElement('span');
+    x.textContent='×'; x.style.cssText='position:absolute;top:6px;right:10px;cursor:pointer;font-size:18px;color:#666;';
+    x.onclick=function(){if(toast.parentNode)container.removeChild(toast);};
+    toast.appendChild(x); container.appendChild(toast);
+    setTimeout(function(){if(toast.parentNode)container.removeChild(toast);},7000);
+  }
+
+  var s = document.createElement('style');
+  s.textContent='@keyframes tcSlide{from{transform:translateX(120%);opacity:0}to{transform:translateX(0);opacity:1}}';
+  document.head.appendChild(s);
+
+  try {
+    var socket = io();
+    var uid = '{{ session.get("user_id","") }}';
+    socket.on('connect', function(){ socket.emit('join',{room:'user_'+uid}); });
+    socket.on('alert', function(data){ showToast(data); });
+  } catch(e){}
+})();
+</script>

@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Verify OTP — TrustCheck</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>:root {
+  --bg:#080810; --surface:#0e0e18; --surface2:#13131f;
+  --border:rgba(255,255,255,0.08); --border2:rgba(255,255,255,0.13);
+  --accent:#7c6fe0; --accent2:#2575fc; --al:#a78bfa;
+  --text:#f2f2fa; --muted:rgba(242,242,250,0.45);
+  --green:#10b981; --red:#ef4444; --yellow:#f59e0b; --blue:#3b82f6;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Geist',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased;}
+.tc-bg{position:fixed;inset:0;pointer-events:none;z-index:0;}
+.tc-orb{position:absolute;border-radius:50%;filter:blur(90px);opacity:0.13;}
+.tc-orb-1{width:500px;height:500px;background:#7c6fe0;top:-150px;left:-100px;animation:tcFloat 9s ease-in-out infinite;}
+.tc-orb-2{width:350px;height:350px;background:#2575fc;bottom:-80px;right:-80px;animation:tcFloat 11s ease-in-out infinite reverse;}
+.tc-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(124,111,224,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(124,111,224,0.04) 1px,transparent 1px);background-size:52px 52px;animation:tcGrid 25s linear infinite;}
+@keyframes tcFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-22px)}}
+@keyframes tcGrid{from{transform:translateY(0)}to{transform:translateY(52px)}}
+@keyframes tcFadeUp{from{opacity:0;transform:translateY(22px) scale(0.97)}to{opacity:1;transform:none}}
+.tc-nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 32px;height:60px;background:rgba(8,8,16,0.85);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);}
+.tc-nav-logo{display:flex;align-items:center;font-family: "Calibri";text-decoration:none;color:var(--text);font-weight:800;font-size:1.4rem;text-shadow: 0 0 10px rgba(255, 255, 255, 0.8),
+  0 0 20px rgba(255, 255, 255, 0.6);}
+.tc-nav-btn{background:white;color:#080810;font-size:0.82rem;font-weight:600;padding:6px 16px;border-radius:8px;text-decoration:none;transition:background 0.2s;}
+.tc-nav-btn:hover{background:#e0e0f0;}
+.tc-main{position:relative;z-index:1;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:80px 20px 40px;}
+.tc-card{background:rgba(14,14,24,0.92);backdrop-filter:blur(24px);border:1px solid var(--border2);border-radius:20px;padding:44px 40px;width:100%;max-width:460px;box-shadow:0 0 0 1px rgba(124,111,224,0.07),0 40px 80px rgba(0,0,0,0.6);position:relative;animation:tcFadeUp 0.55s cubic-bezier(.22,.68,0,1.2) both;}
+.tc-card::before,.tc-card::after{content:'';position:absolute;width:14px;height:14px;border-color:rgba(124,111,224,0.4);border-style:solid;}
+.tc-card::before{top:-1px;left:-1px;border-width:2px 0 0 2px;border-radius:2px 0 0 0;}
+.tc-card::after{bottom:-1px;right:-1px;border-width:0 2px 2px 0;border-radius:0 0 2px 0;}
+.tc-step-bar{display:flex;gap:6px;margin-bottom:24px;}
+.tc-step-seg{flex:1;height:4px;border-radius:4px;background:rgba(255,255,255,0.08);}
+.tc-step-seg.done{background:linear-gradient(90deg,var(--accent),var(--accent2));}
+.tc-steps-pill{display:inline-flex;align-items:center;gap:8px;background:rgba(124,111,224,0.08);border:1px solid rgba(124,111,224,0.18);border-radius:24px;padding:5px 14px;margin-bottom:12px;font-size:0.7rem;font-weight:600;color:var(--muted);letter-spacing:0.04em;}
+.tcp em{font-style:normal;}
+.tcp.active{color:var(--al);}
+.tcp-sep{width:1px;height:12px;background:rgba(255,255,255,0.15);}
+.tc-card-title{font-size:1.6rem;font-weight:700;color:white;letter-spacing:-0.4px;margin-bottom:4px;}
+.tc-card-sub{font-size:0.82rem;color:var(--muted);margin-bottom:24px;}
+.tc-flash{padding:10px 14px;border-radius:8px;margin-bottom:14px;font-size:0.82rem;border-left:3px solid;}
+.tc-flash-danger{background:rgba(239,68,68,0.12);color:#fca5a5;border-color:var(--red);}
+.tc-flash-success{background:rgba(16,185,129,0.1);color:#6ee7b7;border-color:var(--green);}
+.tc-flash-info{background:rgba(59,130,246,0.12);color:#93c5fd;border-color:var(--blue);}
+.tc-flash-warning{background:rgba(245,158,11,0.1);color:#fcd34d;border-color:var(--yellow);}
+.tc-form{display:flex;flex-direction:column;gap:15px;}
+.tc-field{display:flex;flex-direction:column;gap:6px;}
+.tc-field label{font-size:0.7rem;font-weight:600;color:rgba(255,255,255,0.4);letter-spacing:0.08em;text-transform:uppercase;}
+.tc-input-wrap{position:relative;}
+.tc-ico{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:rgba(255,255,255,0.22);pointer-events:none;}
+.tc-input-wrap input,.tc-input-wrap select{width:100%;padding:11px 14px 11px 40px;background:rgba(255,255,255,0.05);border:1px solid var(--border2);border-radius:10px;font-size:0.875rem;font-family:'Geist',sans-serif;color:var(--text);outline:none;transition:border-color 0.2s,background 0.2s,box-shadow 0.2s;}
+.tc-no-icon .tc-input-wrap input,.tc-no-icon .tc-input-wrap select{padding-left:14px;}
+.tc-input-wrap input::placeholder{color:rgba(255,255,255,0.18);}
+.tc-input-wrap input:focus,.tc-input-wrap select:focus{border-color:var(--accent);background:rgba(124,111,224,0.07);box-shadow:0 0 0 3px rgba(124,111,224,0.14);}
+.tc-input-wrap select{-webkit-appearance:none;}
+.tc-input-wrap select option{background:#13131f;}
+.tc-eye{position:absolute;right:11px;top:50%;transform:translateY(-50%);background:none;border:none;color:rgba(255,255,255,0.28);cursor:pointer;padding:4px;transition:color 0.2s;display:flex;align-items:center;}
+.tc-eye:hover,.tc-eye.on{color:var(--al);}
+.tc-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:12px 16px;background:linear-gradient(135deg,#7c6fe0,#2575fc);border:none;border-radius:10px;color:white;font-size:0.9rem;font-family:'Geist',sans-serif;font-weight:600;cursor:pointer;transition:opacity 0.2s,transform 0.15s,box-shadow 0.2s;box-shadow:0 4px 20px rgba(124,111,224,0.28);margin-top:4px;}
+.tc-btn:hover{opacity:0.91;transform:translateY(-1px);box-shadow:0 8px 28px rgba(124,111,224,0.42);}
+.tc-btn:active{transform:scale(0.98);}
+.tc-btn-ghost{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:11px 16px;margin-top:8px;background:transparent;border:1px solid var(--border2);border-radius:10px;color:rgba(255,255,255,0.55);font-size:0.875rem;font-family:'Geist',sans-serif;font-weight:500;cursor:pointer;transition:border-color 0.2s,background 0.2s,color 0.2s;}
+.tc-btn-ghost:hover{border-color:var(--accent);background:rgba(124,111,224,0.07);color:white;}
+.tc-divider{display:flex;align-items:center;gap:12px;margin:18px 0;color:rgba(255,255,255,0.18);font-size:0.75rem;}
+.tc-divider::before,.tc-divider::after{content:'';flex:1;height:1px;background:var(--border);}
+.tc-switch-text{text-align:center;font-size:0.82rem;color:var(--muted);}
+.tc-switch-text a{color:var(--al);text-decoration:none;font-weight:600;}
+.tc-switch-text a:hover{color:#c4b5fd;}
+.tc-status-bar{display:flex;align-items:center;gap:8px;margin-top:22px;padding-top:16px;border-top:1px solid var(--border);font-size:0.63rem;color:rgba(255,255,255,0.22);letter-spacing:0.05em;}
+.tc-dot{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green);flex-shrink:0;animation:tcBlink 2s ease-in-out infinite;}
+@keyframes tcBlink{0%,100%{opacity:1}50%{opacity:0.3}}
+.tc-verified{display:flex;align-items:center;gap:8px;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.22);color:#6ee7b7;font-size:0.82rem;font-weight:600;padding:10px 14px;border-radius:10px;margin-bottom:18px;}
+.tc-contact-badge{background:rgba(124,111,224,0.1);border:1px solid rgba(124,111,224,0.25);color:var(--al);font-weight:600;font-size:0.95rem;padding:10px 24px;border-radius:30px;display:inline-block;margin:10px auto 18px;text-align:center;}
+.tc-otp-row{display:flex;gap:10px;justify-content:center;margin:8px 0 4px;}
+.tc-otp-row input{width:50px;height:58px;padding:0;background:rgba(255,255,255,0.05);border:1.5px solid var(--border2);border-radius:10px;font-size:1.5rem;font-weight:700;text-align:center;color:white;outline:none;transition:border-color 0.2s,background 0.2s,box-shadow 0.2s;font-family:'Geist',monospace;}
+.tc-otp-row input:focus{border-color:var(--accent);background:rgba(124,111,224,0.1);box-shadow:0 0 0 3px rgba(124,111,224,0.14);}
+.tc-otp-row input.filled{border-color:var(--accent2);}
+.tc-timer{font-size:0.8rem;color:var(--muted);text-align:center;margin-bottom:12px;}
+.tc-timer b{color:var(--al);}
+.tc-user-info{background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:10px;padding:13px;margin-bottom:16px;font-size:0.82rem;color:rgba(255,255,255,0.6);display:flex;flex-direction:column;gap:4px;}
+.tc-user-info b{color:var(--al);}
+.tc-hint{font-size:0.7rem;color:rgba(255,255,255,0.22);margin-top:4px;}
+.tc-section-lbl{font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--accent);margin:4px 0 12px;display:block;}
+.tc-hr{border:none;border-top:1px solid var(--border);margin:16px 0;}
+.tc-strength{margin-top:8px;}
+.tc-str-bar{height:4px;border-radius:4px;background:rgba(255,255,255,0.08);overflow:hidden;margin-bottom:4px;}
+.tc-str-fill{height:100%;border-radius:4px;width:0;transition:all 0.3s;}
+.tc-str-lbl{font-size:0.7rem;color:var(--muted);margin-bottom:4px;}
+.tc-rule{font-size:0.7rem;color:rgba(255,255,255,0.2);}
+.tc-rule.pass{color:var(--green);}
+.tc-match{font-size:0.7rem;margin-top:4px;}
+.tc-row{display:flex;gap:14px;}
+.tc-row .tc-field{flex:1;}
+.tc-back-link{text-align:center;margin-top:14px;font-size:0.8rem;}
+.tc-back-link a{color:rgba(255,255,255,0.3);text-decoration:none;}
+.tc-back-link a:hover{color:rgba(255,255,255,0.65);}
+.tc-success-icon{font-size:4.5rem;text-align:center;display:block;margin-bottom:10px;animation:tcBounce 1s ease 0.3s both;}
+@keyframes tcBounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-16px)}}
+.tc-success-steps{display:flex;flex-direction:column;gap:10px;background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.14);border-radius:12px;padding:16px;margin:18px 0;}
+.tc-ss-item{display:flex;align-items:center;gap:10px;font-size:0.84rem;color:rgba(255,255,255,0.62);}
+.tc-ss-num{width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));color:white;font-size:0.7rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.tc-center{text-align:center;}
+@media(max-width:480px){.tc-card{padding:30px 20px;}.tc-otp-row input{width:42px;height:50px;font-size:1.3rem;}.tc-row{flex-direction:column;gap:0;}}
+</style>
+</head>
+<body>
+<div class="tc-bg"><div class="tc-orb tc-orb-1"></div><div class="tc-orb tc-orb-2"></div><div class="tc-grid"></div></div>
+<nav class="tc-nav">
+  <a href="/home" class="tc-nav-logo">
+    <img src="{{ url_for('static', filename='trustcheck_logo.png') }}" 
+    alt="TrustCheck Logo" 
+    style="width:55px; height:55px; ">TRUSTCHECK
+  </a>
+  <a href="/login" class="tc-nav-btn">Sign In</a>
+</nav>
+<main class="tc-main">
+  <div class="tc-card">
+    <div class="tc-step-bar">
+      <div class="tc-step-seg done"></div>
+      <div class="tc-step-seg done"></div>
+      <div class="tc-step-seg"></div>
+    </div>
+    <div style="font-size:2.5rem;text-align:center;margin-bottom:10px;">📱</div>
+    <h1 class="tc-card-title tc-center">OTP Verification</h1>
+    <p class="tc-card-sub tc-center">Step 2 of 3 — Enter the OTP sent to your Aadhaar-registered mobile</p>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for cat, msg in messages %}<div class="tc-flash tc-flash-{{ cat }}">{{ msg }}</div>{% endfor %}
+    {% endwith %}
+
+    {% if reg %}
+    <div class="tc-user-info">
+      <div>👤 <b>Name:</b> {{ reg.name }}</div>
+      <div>🗺️ <b>State:</b> {{ reg.state }}</div>
+      <div>⚧ <b>Gender:</b> {{ reg.gender }}</div>
+    </div>
+    {% endif %}
+
+    <div class="tc-center"><span class="tc-contact-badge">📲 {{ masked_mobile }}</span></div>
+
+    <form method="POST" action="/register/otp" id="otpForm">
+      <div class="tc-otp-row">
+        <input type="text" maxlength="1" class="otp-d" data-index="0" inputmode="numeric">
+        <input type="text" maxlength="1" class="otp-d" data-index="1" inputmode="numeric">
+        <input type="text" maxlength="1" class="otp-d" data-index="2" inputmode="numeric">
+        <input type="text" maxlength="1" class="otp-d" data-index="3" inputmode="numeric">
+        <input type="text" maxlength="1" class="otp-d" data-index="4" inputmode="numeric">
+        <input type="text" maxlength="1" class="otp-d" data-index="5" inputmode="numeric">
+      </div>
+      <input type="hidden" name="otp" id="otpHidden">
+      <div class="tc-timer">OTP expires in: <b id="countdown">5:00</b></div>
+      <button class="tc-btn" type="submit">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="20 6 9 17 4 12"/></svg>
+        Verify OTP
+      </button>
+    </form>
+
+    <form method="POST" action="/register/otp/resend" style="margin-top:10px;">
+      <button class="tc-btn-ghost" type="submit">🔄 Resend OTP</button>
+    </form>
+  </div>
+</main>
+<script>
+const ds=document.querySelectorAll('.otp-d');
+ds.forEach((d,i)=>{
+  d.addEventListener('input',()=>{d.value=d.value.replace(/\D/,'');if(d.value&&i<5)ds[i+1].focus();d.classList.toggle('filled',!!d.value);sync();});
+  d.addEventListener('keydown',e=>{if(e.key==='Backspace'&&!d.value&&i>0)ds[i-1].focus();});
+  d.addEventListener('paste',e=>{const p=(e.clipboardData||window.clipboardData).getData('text').replace(/\D/g,'').slice(0,6);ds.forEach((b,j)=>{b.value=p[j]||'';b.classList.toggle('filled',!!b.value);});sync();e.preventDefault();if(ds[p.length])ds[p.length].focus();});
+});
+function sync(){document.getElementById('otpHidden').value=[...ds].map(d=>d.value).join('');}
+document.getElementById('otpForm').addEventListener('submit',e=>{sync();if(document.getElementById('otpHidden').value.length!==6){e.preventDefault();alert('Please enter all 6 digits.');}});
+let secs=300;const cd=document.getElementById('countdown');
+const t=setInterval(()=>{secs--;const m=Math.floor(secs/60),s=secs%60;cd.textContent=m+':'+(s<10?'0':'')+s;if(secs<=0){clearInterval(t);cd.textContent='Expired';cd.style.color='#ef4444';}},1000);
+ds[0].focus();
+</script>
+</body></html>

@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EXE File Analysis — TrustCheck</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #080810; --surface: #0e0e18; --surface2: #13131f;
+  --border: rgba(255,255,255,0.08); --border2: rgba(255,255,255,0.12);
+  --text: #f2f2fa; --muted: rgba(255,255,255,0.45);
+  --accent: #7c6fe0; --accent2: #2575fc;
+  --green: #10b981; --red: #ef4444; --yellow: #f59e0b;
+}
+body {
+  background: var(--bg); color: var(--text);
+  font-family: 'Geist', sans-serif; overflow-x: hidden;
+  -webkit-font-smoothing: antialiased; min-height: 100vh;
+}
+body::after {
+  content: ''; position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none; z-index: 9999; opacity: 0.35;
+}
+.navbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 2rem; height: 62px; position: fixed; top: 0; left: 0; right: 0;
+  background: rgba(8,8,16,0.85); backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border); z-index: 200;
+}
+.logo { display: flex; align-items: center; gap: 8px; text-decoration: none; }
+.logo-name { font-size: 1.3rem; font-weight: 700; color: white; }
+.nav-right { display: flex; align-items: center; gap: 8px; }
+.nav-link {
+  color: var(--muted); text-decoration: none; font-size: 0.875rem;
+  padding: 6px 14px; border-radius: 8px; border: 1px solid var(--border); transition: all 0.2s;
+}
+.nav-link:hover { color: white; border-color: var(--border2); background: rgba(255,255,255,0.05); }
+
+.page { padding: 100px 2rem 4rem; max-width: 960px; margin: 0 auto; }
+.back-link {
+  display: inline-flex; align-items: center; gap: 6px;
+  color: var(--muted); text-decoration: none; font-size: 0.85rem;
+  margin-bottom: 2rem; transition: color 0.2s;
+}
+.back-link:hover { color: var(--text); }
+
+.page-hero { margin-bottom: 2.5rem; }
+.hero-eyebrow {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 0.72rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--yellow); background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.2);
+  padding: 4px 12px; border-radius: 20px; margin-bottom: 1rem;
+}
+.page-title { font-size: clamp(1.8rem, 3vw, 2.4rem); font-weight: 700; line-height: 1.2; margin-bottom: 0.75rem; }
+.page-title em { font-style: italic; font-family: 'Instrument Serif', serif; color: var(--yellow); }
+.page-sub { font-size: 0.95rem; color: var(--muted); line-height: 1.6; max-width: 560px; }
+
+.content-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+@media (max-width: 768px) { .content-grid { grid-template-columns: 1fr; } }
+
+/* UPLOAD CARD */
+.upload-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 24px; padding: 2rem;
+}
+.card-header {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 1.75rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border);
+}
+.card-icon {
+  width: 38px; height: 38px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center; font-size: 1rem;
+}
+.card-icon.orange { background: rgba(245,158,11,0.15); border: 1px solid rgba(245,158,11,0.25); }
+.card-title { font-size: 0.95rem; font-weight: 600; }
+.card-subtitle { font-size: 0.78rem; color: var(--muted); margin-top: 2px; }
+
+/* DROPZONE */
+.dropzone {
+  border: 2px dashed var(--border2); border-radius: 16px;
+  padding: 2.5rem 1.5rem; text-align: center; cursor: pointer;
+  transition: all 0.2s; position: relative; margin-bottom: 1.25rem;
+}
+.dropzone:hover, .dropzone.dragover {
+  border-color: rgba(245,158,11,0.5); background: rgba(245,158,11,0.04);
+}
+.dropzone input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+.dropzone-icon { font-size: 2.5rem; margin-bottom: 0.75rem; }
+.dropzone-title { font-size: 0.9rem; font-weight: 600; margin-bottom: 4px; }
+.dropzone-sub { font-size: 0.78rem; color: var(--muted); }
+.file-selected {
+  margin-top: 8px; font-size: 0.8rem; color: var(--yellow);
+  display: none; align-items: center; gap: 6px; justify-content: center;
+}
+
+.btn-analyze {
+  width: 100%; padding: 13px;
+  background: linear-gradient(135deg, #f59e0b, #fbbf24);
+  color: #0a0800; border: none; border-radius: 12px;
+  font-family: 'Geist', sans-serif; font-size: 0.95rem; font-weight: 700;
+  cursor: pointer; transition: opacity 0.2s, transform 0.2s;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.btn-analyze:hover { opacity: 0.9; transform: translateY(-1px); }
+.btn-analyze:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+/* LOADING */
+.loading-state {
+  text-align: center; padding: 2rem; display: none;
+  animation: fadeIn 0.3s ease;
+}
+@keyframes fadeIn { from{opacity:0} to{opacity:1} }
+.loading-spinner {
+  width: 40px; height: 40px; border-radius: 50%;
+  border: 3px solid rgba(255,255,255,0.08);
+  border-top-color: var(--yellow);
+  animation: spin 0.8s linear infinite;
+  margin: 0 auto 1rem;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-text { font-size: 0.9rem; color: var(--muted); }
+
+/* RESULT CARD */
+.result-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 24px; padding: 2rem; display: none; animation: fadeIn 0.3s ease;
+}
+.result-header { display: flex; align-items: center; gap: 12px; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+.result-icon { font-size: 2rem; }
+.result-label { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 3px; }
+.result-verdict { font-size: 1.1rem; font-weight: 700; }
+.result-verdict.malicious { color: var(--red); }
+.result-verdict.safe { color: var(--green); }
+.result-verdict.warning { color: var(--yellow); }
+
+.result-fields { display: flex; flex-direction: column; gap: 0.75rem; }
+.result-field {
+  background: rgba(255,255,255,0.03); border: 1px solid var(--border);
+  border-radius: 10px; padding: 0.75rem 1rem;
+}
+.result-field-label { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 4px; }
+.result-field-val { font-size: 0.85rem; font-weight: 500; word-break: break-all; }
+
+/* INFO PANEL */
+.info-panel {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 24px; padding: 2rem; display: flex; flex-direction: column; gap: 1.5rem;
+}
+.info-panel-title {
+  font-size: 0.95rem; font-weight: 600;
+  padding-bottom: 1rem; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 8px;
+}
+.info-item { display: flex; gap: 12px; align-items: flex-start; }
+.info-item-icon {
+  width: 34px; height: 34px; border-radius: 10px;
+  background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.2);
+  display: flex; align-items: center; justify-content: center; font-size: 0.85rem; flex-shrink: 0;
+}
+.info-item-text .iit { font-size: 0.85rem; font-weight: 600; margin-bottom: 3px; }
+.info-item-text .iis { font-size: 0.78rem; color: var(--muted); line-height: 1.5; }
+
+/* HISTORY LINK */
+.history-link {
+  display: flex; align-items: center; justify-content: space-between;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 16px; padding: 1.25rem 1.5rem; text-decoration: none; color: var(--text);
+  transition: border-color 0.2s; margin-top: 1.5rem;
+}
+.history-link:hover { border-color: var(--border2); }
+.hl-left { display: flex; align-items: center; gap: 10px; }
+.hl-icon {
+  width: 34px; height: 34px; border-radius: 10px;
+  background: rgba(124,111,224,0.15); border: 1px solid rgba(124,111,224,0.2);
+  display: flex; align-items: center; justify-content: center; font-size: 0.9rem;
+}
+.hl-title { font-size: 0.875rem; font-weight: 600; }
+.hl-sub { font-size: 0.75rem; color: var(--muted); margin-top: 2px; }
+.hl-arrow { color: var(--muted); transition: color 0.2s; }
+.history-link:hover .hl-arrow { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <a href="/dashboard" class="logo">
+    <span>🛡️</span>
+    <span class="logo-name">TrustCheck</span>
+  </a>
+  <div class="nav-right">
+    <a href="/dashboard" class="nav-link">Dashboard</a>
+    <a href="{{ url_for('logout') }}" class="nav-link">Logout</a>
+  </div>
+</nav>
+
+<div class="page">
+
+  <a href="/dashboard" class="back-link">← Back to Dashboard</a>
+
+  <div class="page-hero">
+    <div class="hero-eyebrow">📄 Heuristic Analysis</div>
+    <h1 class="page-title">EXE File<br><em>Analysis</em></h1>
+    <p class="page-sub">Upload any .exe file and TrustCheck will detect potential malware, suspicious behavior and generate a detailed report with hash and confidence score.</p>
+  </div>
+
+  <div class="content-grid">
+
+    <!-- LEFT: UPLOAD + RESULT -->
+    <div style="display:flex;flex-direction:column;gap:1.5rem;">
+      <div class="upload-card">
+        <div class="card-header">
+          <div class="card-icon orange">🧩</div>
+          <div>
+            <div class="card-title">Upload EXE File</div>
+            <div class="card-subtitle">Only .exe files accepted — max 50MB</div>
+          </div>
+        </div>
+
+        <form id="exeForm" enctype="multipart/form-data">
+          <div class="dropzone" id="dropzone">
+            <input type="file" name="file" id="fileInput" accept=".exe" onchange="onFileChange(this)">
+            <div class="dropzone-icon">📁</div>
+            <div class="dropzone-title">Drop your .exe file here</div>
+            <div class="dropzone-sub">or click to browse</div>
+            <div class="file-selected" id="fileSelected">
+              <span>📄</span><span id="fileName"></span>
+            </div>
+          </div>
+          <button type="submit" class="btn-analyze" id="analyzeBtn" disabled>
+            🚀 Analyze File
+          </button>
+        </form>
+
+        <div class="loading-state" id="loadingState">
+          <div class="loading-spinner"></div>
+          <div class="loading-text">Analyzing file... please wait</div>
+        </div>
+      </div>
+
+      <div class="result-card" id="resultCard">
+        <div class="result-header">
+          <span class="result-icon" id="resultIcon"></span>
+          <div>
+            <div class="result-label">Analysis Verdict</div>
+            <div class="result-verdict" id="resultVerdict"></div>
+          </div>
+        </div>
+        <div class="result-fields">
+          <div class="result-field">
+            <div class="result-field-label">📄 File Name</div>
+            <div class="result-field-val" id="resFileName"></div>
+          </div>
+          <div class="result-field">
+            <div class="result-field-label">📊 Confidence</div>
+            <div class="result-field-val" id="resConfidence"></div>
+          </div>
+          <div class="result-field">
+            <div class="result-field-label">🔐 SHA256 Hash</div>
+            <div class="result-field-val" id="resHash" style="font-family:monospace;font-size:0.75rem;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: INFO + HISTORY -->
+    <div style="display:flex;flex-direction:column;gap:1.5rem;">
+      <div class="info-panel">
+        <div class="info-panel-title">⚡ How Analysis Works</div>
+        <div class="info-item">
+          <div class="info-item-icon">🔐</div>
+          <div class="info-item-text">
+            <div class="iit">Hash Verification</div>
+            <div class="iis">SHA256 hash is computed and checked against known malware databases.</div>
+          </div>
+        </div>
+        <div class="info-item">
+          <div class="info-item-icon">🧠</div>
+          <div class="info-item-text">
+            <div class="iit">Heuristic Scanning</div>
+            <div class="iis">Behavioral patterns and PE header anomalies are analyzed by our ML model.</div>
+          </div>
+        </div>
+        <div class="info-item">
+          <div class="info-item-icon">📊</div>
+          <div class="info-item-text">
+            <div class="iit">Confidence Score</div>
+            <div class="iis">A confidence percentage indicates how certain the model is about its verdict.</div>
+          </div>
+        </div>
+        <div class="info-item">
+          <div class="info-item-icon">🔒</div>
+          <div class="info-item-text">
+            <div class="iit">Secure Processing</div>
+            <div class="iis">All files are processed in an isolated sandbox and never executed.</div>
+          </div>
+        </div>
+      </div>
+
+      <a href="{{ url_for('exe_history') }}" class="history-link">
+        <div class="hl-left">
+          <div class="hl-icon">📜</div>
+          <div>
+            <div class="hl-title">View Analysis History</div>
+            <div class="hl-sub">Browse all previously analyzed EXE files</div>
+          </div>
+        </div>
+        <span class="hl-arrow">→</span>
+      </a>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+const dropzone = document.getElementById('dropzone');
+const analyzeBtn = document.getElementById('analyzeBtn');
+
+dropzone.addEventListener('dragover', e => { e.preventDefault(); dropzone.classList.add('dragover'); });
+dropzone.addEventListener('dragleave', () => dropzone.classList.remove('dragover'));
+dropzone.addEventListener('drop', e => {
+  e.preventDefault(); dropzone.classList.remove('dragover');
+  const f = e.dataTransfer.files[0];
+  if (f) { document.getElementById('fileInput').files = e.dataTransfer.files; onFileChange({files: [f]}); }
+});
+
+function onFileChange(input) {
+  const f = input.files[0];
+  if (f) {
+    document.getElementById('fileName').textContent = f.name;
+    document.getElementById('fileSelected').style.display = 'flex';
+    analyzeBtn.disabled = false;
+  }
+}
+
+document.getElementById('exeForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const fileInput = document.getElementById('fileInput');
+  if (!fileInput.files.length) { alert('Please select an .exe file'); return; }
+
+  analyzeBtn.style.display = 'none';
+  document.getElementById('loadingState').style.display = 'block';
+  document.getElementById('resultCard').style.display = 'none';
+
+  const formData = new FormData();
+  formData.append('file', fileInput.files[0]);
+
+  try {
+    const res = await axios.post('/analyze-exe', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+    const data = res.data;
+
+    const isMalicious = data.verdict?.toLowerCase().includes('malicious');
+    const cls = isMalicious ? 'malicious' : 'safe';
+    const icon = isMalicious ? '🚨' : '✅';
+
+    document.getElementById('resultIcon').textContent = icon;
+    document.getElementById('resultVerdict').className = 'result-verdict ' + cls;
+    document.getElementById('resultVerdict').textContent = data.verdict;
+    document.getElementById('resFileName').textContent = fileInput.files[0].name;
+    document.getElementById('resConfidence').textContent = data.confidence || '—';
+    document.getElementById('resHash').textContent = data.hash || '—';
+    document.getElementById('resultCard').style.display = 'block';
+  } catch(err) {
+    console.error(err);
+    alert('❌ Error analyzing file. Please try again.');
+  }
+
+  analyzeBtn.style.display = 'flex';
+  document.getElementById('loadingState').style.display = 'none';
+});
+</script>
+</body>
+</html>

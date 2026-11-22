@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Panel — TrustCheck</title>
+<style>
+  * { box-sizing: border-box; }
+  body { font-family:  'Inter', sans-serif; background: #0f0f1a; color: #f0f0fa; margin: 0; min-height: 100vh; }
+
+  /* NAVBAR */
+  .navbar {
+    display: flex; justify-content: space-between; align-items: center;
+    background: linear-gradient(to right, #1a0533, #0d1b4b);
+    padding: 0 36px; height: 62px;
+    position: fixed; top: 0; width: 100%; z-index: 100;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    box-shadow: 0 2px 20px rgba(0,0,0,0.4);
+  }
+  .navbar .logo { font-size: 1.4em; font-weight: 800; color: white; text-decoration: none; display: flex; align-items: center;font-family: "Calibri";text-shadow: 0 0 10px rgba(255, 255, 255, 0.8),
+  0 0 20px rgba(255, 255, 255, 0.6);  }
+  .navbar .nav-links a { color: rgba(255,255,255,0.6); text-decoration: none; font-size: 0.88em; font-weight: 500; padding: 7px 16px; border-radius: 8px; transition: all 0.2s; }
+  .navbar .nav-links a:hover { background: rgba(255,255,255,0.08); color: white; }
+  .navbar .nav-links a.danger { background: rgba(239,68,68,0.15); color: #fca5a5; }
+  .navbar .nav-links a.danger:hover { background: rgba(239,68,68,0.3); }
+
+  /* LAYOUT */
+  .page { max-width: 1200px; margin: 0 auto; padding: 82px 24px 50px; }
+
+  /* PAGE HEADER */
+  .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 12px; }
+  .page-header h1 { font-size: 1.8em; font-weight: 800; color: white; margin: 0; }
+  .page-header .subtitle { color: rgba(255,255,255,0.4); font-size: 0.9em; margin-top: 4px; }
+
+  /* STATS ROW */
+  .stats-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; margin-bottom: 30px; }
+  .stat-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 14px;
+    padding: 20px 22px;
+    display: flex; align-items: center; gap: 16px;
+  }
+  .stat-icon { font-size: 2em; }
+  .stat-val { font-size: 1.9em; font-weight: 800; color: white; line-height: 1; }
+  .stat-label { font-size: 0.78em; color: rgba(255,255,255,0.45); margin-top: 3px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+  /* TABS */
+  .tabs { display: flex; gap: 6px; margin-bottom: 24px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 0; }
+  .tab-btn {
+    background: none; border: none; color: rgba(255,255,255,0.45);
+    font-size: 0.9em; font-weight: 600; padding: 10px 20px;
+    cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.2s;
+    border-radius: 8px 8px 0 0;
+  }
+  .tab-btn:hover { color: white; background: rgba(255,255,255,0.04); }
+  .tab-btn.active { color: #f59e0b; border-bottom-color: #f59e0b; background: rgba(245,158,11,0.06); }
+
+  /* SECTION */
+  .section { display: none; }
+  .section.active { display: block; }
+
+  /* CARD */
+  .data-card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+  .data-card .card-header {
+    padding: 18px 24px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    display: flex; justify-content: space-between; align-items: center;
+    flex-wrap: wrap; gap: 12px;
+  }
+  .data-card .card-header h2 { font-size: 1.05em; font-weight: 700; color: white; margin: 0; }
+  .data-card .card-header .count { font-size: 0.8em; color: rgba(255,255,255,0.35); }
+
+  /* SEARCH */
+  .search-wrap { padding: 14px 24px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+  .search-wrap input {
+    width: 100%; max-width: 340px; padding: 9px 14px;
+    background: rgba(255,255,255,0.07); border: 1.5px solid rgba(255,255,255,0.1);
+    border-radius: 9px; font-size: 0.88em; color: white; outline: none;
+  }
+  .search-wrap input::placeholder { color: rgba(255,255,255,0.25); }
+  .search-wrap input:focus { border-color: #f59e0b; }
+
+  /* TABLE */
+  table { width: 100%; border-collapse: collapse; }
+  thead th {
+    background: rgba(255,255,255,0.03);
+    padding: 11px 16px; text-align: left;
+    font-size: 0.75em; font-weight: 700;
+    color: rgba(255,255,255,0.4);
+    text-transform: uppercase; letter-spacing: 0.6px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  tbody tr { border-bottom: 1px solid rgba(255,255,255,0.04); transition: background 0.15s; }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: rgba(255,255,255,0.03); }
+  tbody td { padding: 13px 16px; font-size: 0.88em; color: rgba(255,255,255,0.8); }
+
+  /* BADGES */
+  .badge-mono { font-family: monospace; font-size: 0.88em; background: rgba(106,17,203,0.2); padding: 3px 8px; border-radius: 5px; color: #c4b5fd; font-weight: 600; }
+  .badge-mobile { font-family: monospace; font-size: 0.88em; color: #60a5fa; font-weight: 600; }
+  .badge-gender { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 0.78em; font-weight: 700; }
+  .badge-gender.Male   { background: rgba(59,130,246,0.15); color: #93c5fd; }
+  .badge-gender.Female { background: rgba(236,72,153,0.15); color: #f9a8d4; }
+  .badge-gender.Other  { background: rgba(167,139,250,0.15); color: #c4b5fd; }
+  .badge-verified { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 0.75em; font-weight: 700; }
+  .badge-verified.yes { background: rgba(16,185,129,0.15); color: #6ee7b7; }
+  .badge-verified.no  { background: rgba(245,158,11,0.15); color: #fcd34d; }
+  .badge-email { font-size: 0.85em; color: #67e8f9; }
+
+  /* ADD FORM */
+  .add-form-card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 16px;
+    padding: 24px 26px;
+    margin-bottom: 22px;
+  }
+  .add-form-card h2 { font-size: 1em; font-weight: 700; color: white; margin-bottom: 16px; }
+  .form-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 14px; }
+  .form-grid label { font-size: 0.72em; font-weight: 600; color: rgba(255,255,255,0.45); display: block; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .form-grid input, .form-grid select {
+    width: 100%; padding: 9px 12px;
+    background: rgba(255,255,255,0.07); border: 1.5px solid rgba(255,255,255,0.1);
+    border-radius: 8px; font-size: 0.88em; color: white; outline: none; transition: border 0.2s;
+  }
+  .form-grid input::placeholder { color: rgba(255,255,255,0.25); }
+  .form-grid input:focus, .form-grid select:focus { border-color: #f59e0b; }
+  .form-grid select option { background: #1a1a2e; }
+  .btn-add {
+    margin-top: 16px; padding: 10px 28px;
+    background: linear-gradient(to right, #f59e0b, #ef4444);
+    color: white; border: none; border-radius: 8px;
+    font-size: 0.92em; font-weight: 700; cursor: pointer; transition: opacity 0.2s;
+  }
+  .btn-add:hover { opacity: 0.88; }
+
+  /* DELETE */
+  .btn-delete {
+    background: rgba(239,68,68,0.15); color: #fca5a5;
+    border: 1px solid rgba(239,68,68,0.2);
+    padding: 5px 13px; border-radius: 7px; font-size: 0.8em; font-weight: 700;
+    cursor: pointer; transition: background 0.2s;
+  }
+  .btn-delete:hover { background: rgba(239,68,68,0.3); }
+
+  /* FLASH */
+  .flash { padding: 11px 16px; border-radius: 10px; margin-bottom: 20px; font-size: 0.9em; font-weight: 500; }
+  .flash.success { background: rgba(16,185,129,0.15); color: #6ee7b7; border-left: 3px solid #10b981; }
+  .flash.danger  { background: rgba(239,68,68,0.15); color: #fca5a5; border-left: 3px solid #ef4444; }
+  .flash.info    { background: rgba(59,130,246,0.15); color: #93c5fd; border-left: 3px solid #3b82f6; }
+  .flash.warning { background: rgba(245,158,11,0.15); color: #fcd34d; border-left: 3px solid #f59e0b; }
+
+  /* EMPTY STATE */
+  .empty-state { text-align: center; padding: 50px 20px; color: rgba(255,255,255,0.25); }
+  .empty-state .icon { font-size: 3em; margin-bottom: 10px; }
+</style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <a href="/home" class="logo">
+    <img src="{{ url_for('static', filename='trustcheck_logo.png') }}" 
+       alt="TrustCheck Logo" 
+       style="width:55px; height:55px; ">
+       TRUSTCHECK
+  </a>
+  <div class="nav-links">
+    <a href="/home">🏠 Home</a>
+    <a href="/admin/logout" class="danger">🚪 Logout</a>
+  </div>
+</nav>
+
+<div class="page">
+
+  <!-- FLASH MESSAGES -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for cat, msg in messages %}
+      <div class="flash {{ cat }}">{{ msg }}</div>
+    {% endfor %}
+  {% endwith %}
+
+  <!-- PAGE HEADER -->
+  <div class="page-header">
+    <div>
+      <h1>⚙️ Admin Dashboard</h1>
+      <div class="subtitle">Manage Aadhaar records and registered user accounts</div>
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-icon">🪪</div>
+      <div>
+        <div class="stat-val">{{ aadhaar_records|length }}</div>
+        <div class="stat-label">Aadhaar Records</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">👥</div>
+      <div>
+        <div class="stat-val">{{ users|length }}</div>
+        <div class="stat-label">Registered Users</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">✅</div>
+      <div>
+        <div class="stat-val">{{ users|selectattr('is_verified')|list|length }}</div>
+        <div class="stat-label">Verified Users</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">⏳</div>
+      <div>
+        <div class="stat-val">{{ users|rejectattr('is_verified')|list|length }}</div>
+        <div class="stat-label">Pending Verification</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab-btn active" onclick="showTab('aadhaar', this)">🪪 Aadhaar Database</button>
+    <button class="tab-btn" onclick="showTab('users', this)">👥 User Logins</button>
+  </div>
+
+  <!-- ── TAB: AADHAAR ── -->
+  <div id="tab-aadhaar" class="section active">
+
+    <!-- Add Form -->
+    <div class="add-form-card">
+      <h2>➕ Add New Aadhaar Record</h2>
+      <form method="POST" action="/admin/aadhaar/add">
+        <div class="form-grid">
+          <div>
+            <label>Aadhaar Number</label>
+            <input type="text" name="aadhaar_number" placeholder="12-digit number" maxlength="12" pattern="\d{12}" required>
+          </div>
+          <div>
+            <label>Full Name</label>
+            <input type="text" name="name" placeholder="As per Aadhaar" required>
+          </div>
+          <div>
+            <label>Mobile Number</label>
+            <input type="text" name="mobile" placeholder="10-digit mobile" maxlength="10" pattern="\d{10}" required>
+          </div>
+          <div>
+            <label>State</label>
+            <input type="text" name="state" placeholder="e.g. Karnataka" required>
+          </div>
+          <div>
+            <label>Gender</label>
+            <select name="gender" required>
+              <option value="">Select</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+        </div>
+        <button class="btn-add" type="submit">➕ Add Record</button>
+      </form>
+    </div>
+
+    <!-- Table -->
+    <div class="data-card">
+      <div class="card-header">
+        <h2>📋 All Aadhaar Records</h2>
+        <span class="count">{{ aadhaar_records|length }} total entries</span>
+      </div>
+      <div class="search-wrap">
+        <input type="text" id="aadhaarSearch" placeholder="🔍 Search by name, Aadhaar or mobile..." oninput="filterTable('aadhaarTable', this.value)">
+      </div>
+      {% if aadhaar_records %}
+      <table id="aadhaarTable">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Aadhaar Number</th>
+            <th>Full Name</th>
+            <th>Mobile</th>
+            <th>State</th>
+            <th>Gender</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for r in aadhaar_records %}
+          <tr>
+            <td style="color:rgba(255,255,255,0.3);">{{ loop.index }}</td>
+            <td><span class="badge-mono">{{ r.aadhaar_number }}</span></td>
+            <td><b>{{ r.name }}</b></td>
+            <td><span class="badge-mobile">{{ r.mobile }}</span></td>
+            <td>{{ r.state }}</td>
+            <td><span class="badge-gender {{ r.gender }}">{{ r.gender }}</span></td>
+            <td>
+              <form method="POST" action="/admin/aadhaar/delete/{{ r.id }}" onsubmit="return confirm('Delete record for {{ r.name }}?')">
+                <button class="btn-delete" type="submit">🗑 Delete</button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <div class="empty-state">
+        <div class="icon">📂</div>
+        <p>No Aadhaar records found. Add one above.</p>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- ── TAB: USER LOGINS ── -->
+  <div id="tab-users" class="section">
+    <div class="data-card">
+      <div class="card-header">
+        <h2>👥 Registered User Logins</h2>
+        <span class="count">{{ users|length }} total users</span>
+      </div>
+      <div class="search-wrap">
+        <input type="text" id="userSearch" placeholder="🔍 Search by name, email or username..." oninput="filterTable('usersTable', this.value)">
+      </div>
+      {% if users %}
+      <table id="usersTable">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Full Name</th>
+            <th>Email</th>
+            <th>Username</th>
+            <th>Aadhaar</th>
+            <th>Mobile</th>
+            <th>Gender</th>
+            <th>State</th>
+            <th>Verified</th>
+            <th>Registered</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for u in users %}
+          <tr>
+            <td style="color:rgba(255,255,255,0.3);">{{ loop.index }}</td>
+            <td><b>{{ u.full_name }}</b></td>
+            <td><span class="badge-email">{{ u.email or '—' }}</span></td>
+            <td>{{ u.username or '—' }}</td>
+            <td><span class="badge-mono">{{ u.aadhaar_number }}</span></td>
+            <td><span class="badge-mobile">{{ u.mobile_number }}</span></td>
+            <td><span class="badge-gender {{ u.gender }}">{{ u.gender or '—' }}</span></td>
+            <td>{{ u.state or '—' }}</td>
+            <td>
+              {% if u.is_verified %}
+                <span class="badge-verified yes">✅ Yes</span>
+              {% else %}
+                <span class="badge-verified no">⏳ Pending</span>
+              {% endif %}
+            </td>
+            <td style="color:rgba(255,255,255,0.4); font-size:0.82em;">{{ u.created_at.strftime('%Y-%m-%d') if u.created_at else '—' }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <div class="empty-state">
+        <div class="icon">👤</div>
+        <p>No registered users found.</p>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+</div>
+
+<script>
+  function showTab(name, btn) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab-' + name).classList.add('active');
+    btn.classList.add('active');
+  }
+
+  function filterTable(tableId, query) {
+    const q = query.toLowerCase();
+    document.querySelectorAll('#' + tableId + ' tbody tr').forEach(row => {
+      row.style.display = row.textContent.toLowerCase().includes(q) ? '' : 'none';
+    });
+  }
+</script>
+
+</body>
+</html>

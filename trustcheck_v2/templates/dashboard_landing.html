@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TrustCheck — Secure Intelligence Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="static/dashboard_landing.css">
+</head>
+<body>
+
+<!-- ANIMATED BACKGROUND -->
+<canvas id="bg-canvas"></canvas>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <a href="/home" class="logo">
+    <img src="static/trustcheck_logo.png" class="logo-img" alt="logo">
+    <span class="logo-name">TRUSTCHECK</span>
+  </a>
+  <div class="nav-center">
+    <a href="#features">Features</a>
+    <a href="#how">How it works</a>
+    <a href="#testimonials">Testimonials</a>
+  </div>
+  <div class="nav-right">
+    <a href="/admin/login" class="nav-link nav-login-admin">Admin</a>
+    <a href="/login" class="nav-link">Log In</a>
+    <a href="/register" class="btn-nav-outline">Sign Up</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-badge">
+    <span class="hero-badge-dot"></span>
+    If you don't have trust, then check it
+  </div>
+  <h1>Your All-In-One</h1>
+  <span class="hero-h1-gradient">Security Intelligence Platform</span>
+  <p class="hero-sub">TrustCheck combines Aadhaar-based OTP authentication with powerful threat analysis — caller ID verification, phishing detection, process monitoring, and more.</p>
+  <div class="hero-btns">
+    <a href="/register" class="btn-gradient">Get started for free &nbsp;→</a>
+    <a href="#how" class="btn-dark">▶ &nbsp;See how it works</a>
+  </div>
+
+  <div class="hero-preview">
+    <div class="browser">
+      <div class="browser-bar">
+        <div class="dots"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div></div>
+        <div class="url-pill"><span>🔒</span> trustcheck.app/dashboard</div>
+      </div>
+      <div class="dashboard">
+        <div class="sidebar">
+          <div class="sb-logo">🛡️</div>
+          <div class="sb-item active">📊</div>
+          <div class="sb-item">📞</div>
+          <div class="sb-item">🔗</div>
+          <div class="sb-item">⚙️</div>
+          <div class="sb-item">📄</div>
+        </div>
+        <div class="dash-main">
+          <div class="topbar">
+            <div class="topbar-title">Security Overview</div>
+            <div class="topbar-status"><div class="status-dot"></div> All systems active</div>
+            <div class="topbar-avatar">RK</div>
+          </div>
+          <div class="dash-content">
+            <div class="stat-cards">
+              <div class="stat-card">
+                <div class="sc-icon">🛡️</div>
+                <div class="sc-label">THREATS BLOCKED</div>
+                <div class="sc-val">1,284</div>
+                <div class="sc-chg up">↑ 12% this week</div>
+                <div class="sc-bar"><div class="sc-fill" style="width:78%;background:linear-gradient(90deg,#7c3aed,#a855f7)"></div></div>
+              </div>
+              <div class="stat-card">
+                <div class="sc-icon">🔗</div>
+                <div class="sc-label">URLS SCANNED</div>
+                <div class="sc-val">4,921</div>
+                <div class="sc-chg up">↑ 8% this week</div>
+                <div class="sc-bar"><div class="sc-fill" style="width:92%;background:linear-gradient(90deg,#10b981,#34d399)"></div></div>
+              </div>
+              <div class="stat-card">
+                <div class="sc-icon">📞</div>
+                <div class="sc-label">CALLS VERIFIED</div>
+                <div class="sc-val">739</div>
+                <div class="sc-chg dn">↓ 3% this week</div>
+                <div class="sc-bar"><div class="sc-fill" style="width:55%;background:linear-gradient(90deg,#0ea5e9,#22d3ee)"></div></div>
+              </div>
+              <div class="stat-card">
+                <div class="sc-icon">📄</div>
+                <div class="sc-label">FILES ANALYZED</div>
+                <div class="sc-val">218</div>
+                <div class="sc-chg up">↑ 24% this week</div>
+                <div class="sc-bar"><div class="sc-fill" style="width:43%;background:linear-gradient(90deg,#f97316,#fbbf24)"></div></div>
+              </div>
+            </div>
+            <div class="dash-grid">
+              <div class="panel">
+                <div class="panel-hdr">
+                  <div class="panel-ttl">Live Threat Feed</div>
+                  <div class="live-badge">● LIVE</div>
+                </div>
+                <div class="threat-table">
+                  <div class="tr hdr"><span>THREAT / SOURCE</span><span>TYPE</span><span>STATUS</span><span>RISK</span></div>
+                  <div class="tr live"><span class="tn">http://secur1ty-v.xyz</span><span class="tt">Phishing URL</span><span><div class="badge b-r">BLOCKED</div></span><span><div class="risk-bar"><div class="risk-fill rf-h" style="width:95%"></div></div></span></div>
+                  <div class="tr"><span class="tn">+91-9823-XXXXXX</span><span class="tt">Spam Caller</span><span><div class="badge b-y">FLAGGED</div></span><span><div class="risk-bar"><div class="risk-fill rf-m" style="width:68%"></div></div></span></div>
+                  <div class="tr"><span class="tn">setup_v2.exe</span><span class="tt">Malware EXE</span><span><div class="badge b-r">BLOCKED</div></span><span><div class="risk-bar"><div class="risk-fill rf-h" style="width:88%"></div></div></span></div>
+                  <div class="tr"><span class="tn">miner_bg.exe</span><span class="tt">Cryptominer</span><span><div class="badge b-r">KILLED</div></span><span><div class="risk-bar"><div class="risk-fill rf-h" style="width:100%"></div></div></span></div>
+                  <div class="tr"><span class="tn">https://sbi.co.in</span><span class="tt">URL Scan</span><span><div class="badge b-g">SAFE</div></span><span><div class="risk-bar"><div class="risk-fill rf-s" style="width:5%"></div></div></span></div>
+                  <div class="tr"><span class="tn">+91-7712-XXXXXX</span><span class="tt">Caller ID</span><span><div class="badge b-g">VERIFIED</div></span><span><div class="risk-bar"><div class="risk-fill rf-s" style="width:8%"></div></div></span></div>
+                </div>
+              </div>
+              <div class="right-panels">
+                <div class="panel">
+                  <div class="mp-ttl">Threat Breakdown</div>
+                  <div class="donut-wrap">
+                    <div style="position:relative; width:70px; height:70px;">
+                      <svg viewBox="0 0 70 70" width="70" height="70">
+                        <circle cx="35" cy="35" r="27" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="7"/>
+                        <circle cx="35" cy="35" r="27" fill="none" stroke="#ef4444" stroke-width="7" stroke-dasharray="54 116" stroke-dashoffset="-10" stroke-linecap="round"/>
+                        <circle cx="35" cy="35" r="27" fill="none" stroke="#f59e0b" stroke-width="7" stroke-dasharray="32 138" stroke-dashoffset="-64" stroke-linecap="round"/>
+                        <circle cx="35" cy="35" r="27" fill="none" stroke="#22c55e" stroke-width="7" stroke-dasharray="42 128" stroke-dashoffset="-96" stroke-linecap="round"/>
+                        <circle cx="35" cy="35" r="27" fill="none" stroke="#3b82f6" stroke-width="7" stroke-dasharray="41 129" stroke-dashoffset="-138" stroke-linecap="round"/>
+                      </svg>
+                      <div class="donut-center"><div class="dv">97%</div><div class="dl">blocked</div></div>
+                    </div>
+                    <div class="legend">
+                      <div class="li"><div class="ld" style="background:#ef4444"></div>Phishing (32%)</div>
+                      <div class="li"><div class="ld" style="background:#f59e0b"></div>Spam (19%)</div>
+                      <div class="li"><div class="ld" style="background:#22c55e"></div>Safe (25%)</div>
+                      <div class="li"><div class="ld" style="background:#3b82f6"></div>Malware (24%)</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="panel">
+                  <div class="mp-ttl">Recent Activity</div>
+                  <div class="act-feed">
+                    <div class="ai"><div class="ai-dot" style="background:#ef4444"></div><div><div class="ai-txt">Phishing URL blocked</div><div class="ai-time">2 sec ago</div></div></div>
+                    <div class="ai"><div class="ai-dot" style="background:#f59e0b"></div><div><div class="ai-txt">Spam caller flagged</div><div class="ai-time">1 min ago</div></div></div>
+                    <div class="ai"><div class="ai-dot" style="background:#ef4444"></div><div><div class="ai-txt">Malware process killed</div><div class="ai-time">3 min ago</div></div></div>
+                    <div class="ai"><div class="ai-dot" style="background:#22c55e"></div><div><div class="ai-txt">Aadhaar login verified</div><div class="ai-time">8 min ago</div></div></div>
+                  </div>
+                  <div style="margin-top:10px;border-top:1px solid rgba(255,255,255,0.06);padding-top:8px;">
+                    <div class="sp-lbl"><span>URL Scanner</span><span>92%</span></div>
+                    <div class="sp-bar"><div class="sp-f" style="width:92%;background:linear-gradient(90deg,#7c3aed,#a855f7)"></div></div>
+                    <div class="sp-lbl"><span>Caller DB</span><span>78%</span></div>
+                    <div class="sp-bar"><div class="sp-f" style="width:78%;background:linear-gradient(90deg,#22c55e,#34d399)"></div></div>
+                    <div class="sp-lbl"><span>EXE Analysis</span><span>55%</span></div>
+                    <div class="sp-bar"><div class="sp-f" style="width:55%;background:linear-gradient(90deg,#0ea5e9,#22d3ee)"></div></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TRUST STRIP -->
+<div class="trust-strip">
+  <p class="trust-label">Trusted by security-first teams</p>
+  <div class="marquee-wrap">
+    <div class="marquee-track">
+      <span>CERT-IN</span><span>NASSCOM</span><span>MeitY</span><span>NPCI</span><span>UIDAI</span><span>CyberPeace</span><span>DSCI</span><span>CERT-IN</span><span>NASSCOM</span><span>MeitY</span><span>NPCI</span><span>UIDAI</span><span>CyberPeace</span><span>DSCI</span>
+    </div>
+  </div>
+</div>
+
+<!-- FEATURES INTRO / SHOWCASE -->
+<section class="section" id="features">
+  <div style="text-align:center">
+    <div class="section-eyebrow">Capabilities</div>
+    <h2 class="section-heading">Experience the power of<br>identity-verified security intelligence</h2>
+    <p class="section-sub">The ultimate all-in-one security platform designed to protect you, verify identities, and neutralize threats in real time.</p>
+  </div>
+
+  <div class="feat-showcase">
+    <div class="fsi">
+      <div class="fsi-content">
+        <div class="fsi-eyebrow">Caller Verification</div>
+        <h3>Know who's calling before you answer</h3>
+        <p>Our ML-backed caller ID engine looks up names, gender, and state from a live database, flagging suspicious numbers instantly.</p>
+        <a href="/register" class="fsi-link">Get started →</a>
+      </div>
+      <div class="fsi-visual">
+        <div class="mock-card">
+          <div class="mock-avatar">👤</div>
+          <div class="mock-info"><div class="mock-name">Unknown Caller</div><div class="mock-num">+91-98XX-XXXX</div></div>
+          <div class="mock-tag spam">SPAM</div>
+        </div>
+        <div class="mock-card safe">
+          <div class="mock-avatar">✅</div>
+          <div class="mock-info"><div class="mock-name">Rajesh Kumar</div><div class="mock-num">+91-77XX-XXXX</div></div>
+          <div class="mock-tag ok">VERIFIED</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="fsi reverse">
+      <div class="fsi-content">
+        <div class="fsi-eyebrow">URL Scanner</div>
+        <h3>Detect phishing links in real time</h3>
+        <p>Paste any URL and TrustCheck runs it through ML phishing models and live blacklist databases — returning a threat verdict in under a second.</p>
+        <a href="/register" class="fsi-link">Get started →</a>
+      </div>
+      <div class="fsi-visual">
+        <div class="url-scan-bar"><span class="url-icon-s">🔗</span><span class="url-text-s">http://secur1ty-verify.xyz/login</span><span class="scan-btn">Scan</span></div>
+        <div class="url-result-s danger"><span>⚠️</span><div><div class="ur-ttl">Phishing Detected</div><div class="ur-sub">Blacklisted · ML Score: 0.97</div></div></div>
+        <div class="url-scan-bar mt"><span class="url-icon-s">🔗</span><span class="url-text-s">https://sbi.co.in/portal</span><span class="scan-btn">Scan</span></div>
+        <div class="url-result-s safe-r"><span>✅</span><div><div class="ur-ttl">Safe URL</div><div class="ur-sub">Verified · ML Score: 0.02</div></div></div>
+      </div>
+    </div>
+
+    <div class="fsi">
+      <div class="fsi-content">
+        <div class="fsi-eyebrow">Process Monitor</div>
+        <h3>See everything running on your machine</h3>
+        <p>A live, filterable view of all active processes with memory usage, CPU load, and one-click kill capability for suspicious programs.</p>
+        <a href="/register" class="fsi-link">Get started →</a>
+      </div>
+      <div class="fsi-visual">
+        <div class="proc-row hdr"><span>Process</span><span>CPU</span><span>RAM</span><span></span></div>
+        <div class="proc-row"><span>chrome.exe</span><span>4.2%</span><span>312 MB</span><span class="proc-safe">Safe</span></div>
+        <div class="proc-row warn"><span>miner.exe</span><span>89%</span><span>1.2 GB</span><span class="proc-kill">Kill</span></div>
+        <div class="proc-row"><span>explorer.exe</span><span>1.1%</span><span>48 MB</span><span class="proc-safe">Safe</span></div>
+        <div class="proc-row warn"><span>unknown.exe</span><span>34%</span><span>600 MB</span><span class="proc-kill">Kill</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURE GRID -->
+<div class="feat-grid-wrap">
+  <div class="feat-grid-head">
+    <div class="section-eyebrow">All Features</div>
+    <h2 class="section-heading">Unlock your full security potential</h2>
+  </div>
+  <div class="features-grid">
+    <div class="feat-card">
+      <div class="fc-icon-wrap ic-1">📞</div>
+      <div class="fc-title">Caller ID Verify</div>
+      <p class="fc-desc">Look up name, gender & state from our ML-backed caller database instantly.</p>
+      <div class="fc-benefit">ML-Powered instant lookup</div>
+    </div>
+    <div class="feat-card">
+      <div class="fc-icon-wrap ic-2">🔗</div>
+      <div class="fc-title">URL Scanner</div>
+      <p class="fc-desc">ML phishing detection and live blacklist checks in real time.</p>
+      <div class="fc-benefit">Real-time threat verdict</div>
+    </div>
+    <div class="feat-card">
+      <div class="fc-icon-wrap ic-3">⚙️</div>
+      <div class="fc-title">Process Monitor</div>
+      <p class="fc-desc">Live view of running processes with kill capability for suspicious programs.</p>
+      <div class="fc-benefit">One-click threat removal</div>
+    </div>
+    <div class="feat-card">
+      <div class="fc-icon-wrap ic-4">📄</div>
+      <div class="fc-title">EXE Analysis</div>
+      <p class="fc-desc">Hash and heuristic analysis of executable files for malware detection.</p>
+      <div class="fc-benefit">Heuristic malware detection</div>
+    </div>
+    <div class="feat-card">
+      <div class="fc-icon-wrap ic-5">🔒</div>
+      <div class="fc-title">Aadhaar Auth</div>
+      <p class="fc-desc">OTP sent to your Aadhaar-linked mobile for secure, verified registration.</p>
+      <div class="fc-benefit">Government-grade identity</div>
+    </div>
+    <div class="feat-card">
+      <div class="fc-icon-wrap ic-6">📊</div>
+      <div class="fc-title">Reports & Export</div>
+      <p class="fc-desc">Export full threat analysis reports in CSV or PDF formats anytime.</p>
+      <div class="fc-benefit">Full export in one click</div>
+    </div>
+  </div>
+</div>
+
+<!-- HOW IT WORKS -->
+<div class="how-section-wrap" id="how">
+  <div style="text-align:center">
+    <div class="section-eyebrow">Authentication Flow</div>
+    <h2 class="section-heading">How registration works</h2>
+    <p class="section-sub">Verified in minutes, secured for life — your Aadhaar identity powers every login.</p>
+  </div>
+  <div class="flow-steps">
+    <div class="step"><div class="step-num">1</div><div class="step-label">Visit Dashboard</div></div>
+    <div class="flow-arrow"></div>
+    <div class="step"><div class="step-num">2</div><div class="step-label">Click Register</div></div>
+    <div class="flow-arrow"></div>
+    <div class="step"><div class="step-num">3</div><div class="step-label">Enter Details</div></div>
+    <div class="flow-arrow"></div>
+    <div class="step"><div class="step-num">4</div><div class="step-label">OTP Sent</div></div>
+    <div class="flow-arrow"></div>
+    <div class="step"><div class="step-num">5</div><div class="step-label">Verify OTP</div></div>
+    <div class="flow-arrow"></div>
+    <div class="step"><div class="step-num">6</div><div class="step-label">Set Credentials</div></div>
+    <div class="flow-arrow"></div>
+    <div class="step done"><div class="step-num">✓</div><div class="step-label">Dashboard Access</div></div>
+  </div>
+</div>
+
+<!-- TESTIMONIALS -->
+<div class="testi-wrap" id="testimonials">
+  <div style="text-align:center">
+    <div class="section-eyebrow">Testimonials</div>
+    <h2 class="section-heading">Loved by Thousands</h2>
+    <p class="section-sub">What our users are saying about TrustCheck.</p>
+  </div>
+  <div class="testi-grid">
+    <div class="testi-card">
+      <div class="testi-header">
+        <div class="testi-avatar av-1">RK</div>
+        <div class="testi-meta">
+          <div class="testi-name">Ramesh K.</div>
+          <div class="testi-role">🏢 Small Business Owner, Mumbai</div>
+        </div>
+      </div>
+      <div class="testi-stars">★★★★★</div>
+      <p>"TrustCheck's caller verification saved me from a banking scam. The Aadhaar login gives me peace of mind that only I can access my account."</p>
+      <div class="testi-result">Saved from banking scam</div>
+    </div>
+    <div class="testi-card">
+      <div class="testi-header">
+        <div class="testi-avatar av-2">PS</div>
+        <div class="testi-meta">
+          <div class="testi-name">Priya S.</div>
+          <div class="testi-role">🏢 IT Manager, Bengaluru</div>
+        </div>
+      </div>
+      <div class="testi-stars">★★★★★</div>
+      <p>"The URL scanner caught a phishing page disguised as my bank's site. The real-time verdict was instant. Absolutely essential tool."</p>
+      <div class="testi-result">Real-time verdict in seconds</div>
+    </div>
+    <div class="testi-card">
+      <div class="testi-header">
+        <div class="testi-avatar av-3">AM</div>
+        <div class="testi-meta">
+          <div class="testi-name">Arjun M.</div>
+          <div class="testi-role">🏢 Systems Administrator, Delhi</div>
+        </div>
+      </div>
+      <div class="testi-stars">★★★★★</div>
+      <p>"Process Monitor helped me identify a crypto miner hiding on our office machines. The one-click kill feature is a lifesaver for sysadmins."</p>
+      <div class="testi-result">Cryptominer neutralized instantly</div>
+    </div>
+    <div class="testi-card">
+      <div class="testi-header">
+        <div class="testi-avatar av-4">NV</div>
+        <div class="testi-meta">
+          <div class="testi-name">Neha V.</div>
+          <div class="testi-role">🏢 Cybersecurity Student, Pune</div>
+        </div>
+      </div>
+      <div class="testi-stars">★★★★★</div>
+      <p>"EXE analysis flagged a fake antivirus installer before I ran it. The heuristic detection is impressive — way ahead of what I expected for free."</p>
+      <div class="testi-result">Malware detected before install</div>
+    </div>
+  </div>
+</div>
+
+<!-- CTA -->
+<div class="cta-section">
+  <div class="cta-inner">
+    <h2>Ready to secure your digital life?</h2>
+    <p>Join thousands of verified users protecting themselves with TrustCheck.</p>
+    <a href="/register" class="btn-gradient" style="display:inline-flex;padding:15px 40px;font-size:16px;">Get started for free &nbsp;→</a>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-top">
+    <div class="footer-brand">
+      <a href="/home" class="logo">
+        <img src="static/trustcheck_logo.png" class="logo-img" alt="logo">
+        <span class="logo-name">TrustCheck</span>
+      </a>
+      <p>Identity-verified security intelligence for everyone.</p>
+    </div>
+    <div class="footer-links">
+      <div class="fl-col">
+        <div class="fl-head">Product</div>
+        <a href="#features">Features</a>
+        <a href="#pricing">Pricing</a>
+        <a href="#how">How it works</a>
+      </div>
+      <div class="fl-col">
+        <div class="fl-head">Account</div>
+        <a href="/login">Log In</a>
+        <a href="/register">Sign Up</a>
+      </div>
+      <div class="fl-col">
+        <div class="fl-head">Legal</div>
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Service</a>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2025 TrustCheck. All rights reserved.</p>
+  </div>
+</footer>
+
+<script>
+// ===================== DASHING ANIMATED BACKGROUND =====================
+(function() {
+  const canvas = document.getElementById('bg-canvas');
+  const ctx = canvas.getContext('2d');
+
+  let W, H;
+  function resize() {
+    W = canvas.width = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  // Floating particles
+  const particles = Array.from({length: 38}, () => ({
+    x: Math.random(),
+    y: Math.random(),
+    r: Math.random() * 1.8 + 0.4,
+    speed: Math.random() * 0.0003 + 0.0001,
+    phase: Math.random() * Math.PI * 2,
+    color: ['#22d3ee','#ec4899','#a855f7','#f97316','#22c55e'][Math.floor(Math.random()*5)],
+    amp: Math.random() * 0.04 + 0.01
+  }));
+
+  function roundRect(x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x+r, y);
+    ctx.lineTo(x+w-r, y);
+    ctx.quadraticCurveTo(x+w, y, x+w, y+r);
+    ctx.lineTo(x+w, y+h-r);
+    ctx.quadraticCurveTo(x+w, y+h, x+w-r, y+h);
+    ctx.lineTo(x+r, y+h);
+    ctx.quadraticCurveTo(x, y+h, x, y+h-r);
+    ctx.lineTo(x, y+r);
+    ctx.quadraticCurveTo(x, y, x+r, y);
+    ctx.closePath();
+  }
+
+  function glowStroke(color, blur, lineW) {
+    ctx.strokeStyle = color;
+    ctx.lineWidth = lineW;
+    ctx.shadowColor = color;
+    ctx.shadowBlur = blur;
+  }
+
+  let t = 0;
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    t += 0.009;
+
+    // ── FLOATING PARTICLES ──
+    for (const p of particles) {
+      const px = (p.x + Math.sin(t * p.speed * 400 + p.phase) * p.amp) * W;
+      const py = (p.y + Math.cos(t * p.speed * 300 + p.phase) * p.amp) * H;
+      ctx.save();
+      ctx.globalAlpha = 0.45;
+      ctx.beginPath();
+      ctx.arc(px, py, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = p.color;
+      ctx.shadowColor = p.color;
+      ctx.shadowBlur = 8;
+      ctx.fill();
+      ctx.restore();
+    }
+
+    // ── 1. BIG PINK ROUNDED SQUARE — spins + drifts up/down ──
+    ctx.save();
+    ctx.globalAlpha = 0.72;
+    const s1cx = W * 0.13 + Math.sin(t * 0.22) * 18;
+    const s1cy = H * 0.30 + Math.cos(t * 0.18) * 22;
+    ctx.translate(s1cx, s1cy);
+    ctx.rotate(t * 0.55);
+    glowStroke('#ff2d78', 22, 2.8);
+    roundRect(-150, -150, 300, 300, 28);
+    ctx.stroke();
+    ctx.restore();
+
+    // ── 2. SECOND SMALLER PINK SQUARE — counter-spins ──
+    ctx.save();
+    ctx.globalAlpha = 0.38;
+    const s2cx = W * 0.09 + Math.cos(t * 0.28) * 14;
+    const s2cy = H * 0.60 + Math.sin(t * 0.22) * 18;
+    ctx.translate(s2cx, s2cy);
+    ctx.rotate(-t * 0.45 + 0.9);
+    glowStroke('#ec4899', 14, 2);
+    roundRect(-100, -100, 200, 200, 18);
+    ctx.stroke();
+    ctx.restore();
+
+    // ── 3. CYAN CIRCLE — orbits in a figure-8 path ──
+    ctx.save();
+    ctx.globalAlpha = 0.60;
+    // Figure-8: cx oscillates left-right, cy oscillates up-down at 2x speed
+    const cR = Math.min(W, H) * 0.33;
+    const cCX = W * 0.82 + Math.sin(t * 0.38) * W * 0.06;
+    const cCY = H * 0.42 + Math.sin(t * 0.76) * H * 0.07;
+    glowStroke('#22d3ee', 28, 2.8);
+    ctx.beginPath();
+    ctx.arc(cCX, cCY, cR, 0, Math.PI * 2);
+    ctx.stroke();
+    // inner ring pulse
+    ctx.globalAlpha = 0.18;
+    ctx.lineWidth = 1.2;
+    ctx.shadowBlur = 8;
+    ctx.beginPath();
+    ctx.arc(cCX, cCY, cR * 0.7, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.restore();
+
+    // ── 4. PURPLE TRIANGLE — rotates + floats inside circle ──
+    ctx.save();
+    ctx.globalAlpha = 0.90;
+    const tCX = W * 0.82 + Math.sin(t * 0.38) * W * 0.06;
+    const tCY = H * 0.38 + Math.sin(t * 0.76) * H * 0.07;
+    const tSZ = Math.min(W, H) * 0.21;
+    ctx.translate(tCX, tCY);
+    ctx.rotate(t * 0.3); // triangle slowly spins
+    ctx.beginPath();
+    ctx.moveTo(0, -tSZ * 0.62);
+    ctx.lineTo(tSZ * 0.52, tSZ * 0.42);
+    ctx.lineTo(-tSZ * 0.52, tSZ * 0.42);
+    ctx.closePath();
+    const tg = ctx.createLinearGradient(-tSZ*0.5, -tSZ*0.6, tSZ*0.5, tSZ*0.4);
+    tg.addColorStop(0, '#c084fc');
+    tg.addColorStop(1, '#7c3aed');
+    ctx.fillStyle = tg;
+    ctx.shadowColor = '#9333ea';
+    ctx.shadowBlur = 55;
+    ctx.fill();
+    ctx.restore();
+
+    // ── 5. ORANGE DIAMOND — spins fast + bounces ──
+    ctx.save();
+    ctx.globalAlpha = 0.68;
+    const dCX = W * 0.52 + Math.sin(t * 0.31) * W * 0.04;
+    const dCY = H * 0.70 + Math.cos(t * 0.44) * 30;
+    ctx.translate(dCX, dCY);
+    ctx.rotate(Math.PI / 4 + t * 0.55);
+    glowStroke('#f97316', 20, 2.4);
+    roundRect(-95, -95, 190, 190, 6);
+    ctx.stroke();
+    ctx.restore();
+
+    // ── 6. TEAL DIAGONAL BEAM — slides + pulses ──
+    ctx.save();
+    ctx.globalAlpha = 0.65 + Math.sin(t * 1.8) * 0.2;
+    const fy1 = Math.sin(t * 0.7 + 0.3) * 40;
+    glowStroke('#22d3ee', 12, 2.2);
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(W * 0.52 + fy1 * 0.3, H * 0.55 + fy1);
+    ctx.lineTo(W * 0.65 + fy1 * 0.3, H * 0.78 + fy1);
+    ctx.stroke();
+    ctx.restore();
+
+    // ── 7. GREEN ACCENT LINES — drift left/right ──
+    ctx.save();
+    ctx.globalAlpha = 0.85;
+    const fy2 = Math.sin(t * 0.55 + 0.8) * 25;
+    const fx2 = Math.cos(t * 0.4) * 20;
+    glowStroke('#22c55e', 12, 2.6);
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(W * 0.08 + fx2, H * 0.50 + fy2);
+    ctx.lineTo(W * 0.17 + fx2, H * 0.515 + fy2);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(W * 0.115 + fx2, H * 0.40 + fy2 * 0.5);
+    ctx.lineTo(W * 0.13 + fx2, H * 0.47 + fy2 * 0.5);
+    ctx.stroke();
+    ctx.restore();
+
+    // ── 8. EXTRA: Small orbiting dot around the circle ──
+    ctx.save();
+    ctx.globalAlpha = 0.9;
+    const orbitAngle = t * 1.1;
+    const oCX = W * 0.82 + Math.sin(t * 0.38) * W * 0.06;
+    const oCY = H * 0.42 + Math.sin(t * 0.76) * H * 0.07;
+    const oR = Math.min(W, H) * 0.33;
+    const dotX = oCX + Math.cos(orbitAngle) * oR;
+    const dotY = oCY + Math.sin(orbitAngle) * oR;
+    ctx.beginPath();
+    ctx.arc(dotX, dotY, 5, 0, Math.PI * 2);
+    ctx.fillStyle = '#22d3ee';
+    ctx.shadowColor = '#22d3ee';
+    ctx.shadowBlur = 20;
+    ctx.fill();
+    // trailing glow dots
+    for (let i = 1; i <= 5; i++) {
+      const ta = orbitAngle - i * 0.18;
+      ctx.globalAlpha = 0.9 - i * 0.15;
+      ctx.beginPath();
+      ctx.arc(oCX + Math.cos(ta) * oR, oCY + Math.sin(ta) * oR, 5 - i * 0.6, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.restore();
+
+    // ── 9. EXTRA: Small orbiting dot around the pink square ──
+    ctx.save();
+    const sq1cx2 = W * 0.13 + Math.sin(t * 0.22) * 18;
+    const sq1cy2 = H * 0.30 + Math.cos(t * 0.18) * 22;
+    const sqOrbit = t * 0.9 + Math.PI;
+    const sqOr = 180;
+    const sqDotX = sq1cx2 + Math.cos(sqOrbit) * sqOr;
+    const sqDotY = sq1cy2 + Math.sin(sqOrbit) * sqOr;
+    ctx.globalAlpha = 0.85;
+    ctx.beginPath();
+    ctx.arc(sqDotX, sqDotY, 4, 0, Math.PI * 2);
+    ctx.fillStyle = '#ff2d78';
+    ctx.shadowColor = '#ff2d78';
+    ctx.shadowBlur = 18;
+    ctx.fill();
+    ctx.restore();
+
+    requestAnimationFrame(draw);
+  }
+
+  draw();
+})();
+
+// ===================== SCROLL REVEAL =====================
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(el => { if (el.isIntersecting) el.target.classList.add('visible'); });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.fsi, .feat-card, .testi-card, .step').forEach(el => observer.observe(el));
+
+// Stagger feat cards
+document.querySelectorAll('.feat-card').forEach((el, i) => {
+  el.style.transitionDelay = (i * 0.08) + 's';
+});
+
+// Smooth scroll
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', e => {
+    const t = document.querySelector(a.getAttribute('href'));
+    if (t) { e.preventDefault(); t.scrollIntoView({ behavior: 'smooth' }); }
+  });
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Phishing History — TrustCheck</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #080810; --surface: #0e0e18; --surface2: #13131f;
+  --border: rgba(255,255,255,0.08); --border2: rgba(255,255,255,0.12);
+  --text: #f2f2fa; --muted: rgba(255,255,255,0.45);
+  --accent: #7c6fe0; --accent2: #2575fc;
+  --green: #10b981; --red: #ef4444; --yellow: #f59e0b;
+}
+body {
+  background: var(--bg); color: var(--text);
+  font-family: 'Geist', sans-serif; overflow-x: hidden;
+  -webkit-font-smoothing: antialiased; min-height: 100vh;
+}
+body::after {
+  content: ''; position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none; z-index: 9999; opacity: 0.35;
+}
+.navbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 2rem; height: 62px; position: fixed; top: 0; left: 0; right: 0;
+  background: rgba(8,8,16,0.85); backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border); z-index: 200;
+}
+.logo { display: flex; align-items: center; gap: 8px; text-decoration: none; }
+.logo-name { font-size: 1.3rem; font-weight: 700; color: white; }
+.nav-right { display: flex; align-items: center; gap: 8px; }
+.nav-link {
+  color: var(--muted); text-decoration: none; font-size: 0.875rem;
+  padding: 6px 14px; border-radius: 8px; border: 1px solid var(--border); transition: all 0.2s;
+}
+.nav-link:hover { color: white; border-color: var(--border2); background: rgba(255,255,255,0.05); }
+
+.page { padding: 100px 2rem 4rem; max-width: 1280px; margin: 0 auto; }
+.back-link {
+  display: inline-flex; align-items: center; gap: 6px;
+  color: var(--muted); text-decoration: none; font-size: 0.85rem;
+  margin-bottom: 2rem; transition: color 0.2s;
+}
+.back-link:hover { color: var(--text); }
+
+.page-header {
+  display: flex; align-items: flex-end; justify-content: space-between;
+  flex-wrap: wrap; gap: 1.5rem; margin-bottom: 2rem;
+}
+.header-eyebrow {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 0.72rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--accent2); background: rgba(37,117,252,0.1); border: 1px solid rgba(37,117,252,0.2);
+  padding: 4px 12px; border-radius: 20px; margin-bottom: 0.75rem;
+}
+.page-title { font-size: clamp(1.5rem, 3vw, 2.2rem); font-weight: 700; }
+.page-title em { font-style: italic; font-family: 'Instrument Serif', serif; color: var(--accent2); }
+.header-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: flex-end; }
+.btn {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 9px 18px; border-radius: 10px; font-size: 0.85rem;
+  font-weight: 600; font-family: 'Geist', sans-serif; cursor: pointer;
+  text-decoration: none; transition: all 0.2s; border: 1px solid;
+}
+.btn-ghost { background: var(--surface); color: var(--text); border-color: var(--border2); }
+.btn-ghost:hover { background: var(--surface2); border-color: rgba(255,255,255,0.2); }
+.btn-red { background: rgba(239,68,68,0.1); color: var(--red); border-color: rgba(239,68,68,0.25); }
+.btn-red:hover { background: rgba(239,68,68,0.18); }
+
+/* SUMMARY */
+.summary-row {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 1rem; margin-bottom: 2rem;
+}
+.summary-pill {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 14px; padding: 1rem 1.25rem;
+  display: flex; align-items: center; gap: 10px;
+}
+.sp-icon {
+  width: 34px; height: 34px; border-radius: 10px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; font-size: 0.85rem;
+}
+.sp-icon.blue { background: rgba(37,117,252,0.15); border: 1px solid rgba(37,117,252,0.25); }
+.sp-icon.red { background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.25); }
+.sp-icon.green { background: rgba(16,185,129,0.15); border: 1px solid rgba(16,185,129,0.25); }
+.sp-val { font-size: 1.2rem; font-weight: 700; }
+.sp-label { font-size: 0.68rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.07em; }
+
+/* TABLE CARD */
+.table-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 24px; overflow: hidden;
+}
+.table-top {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border);
+}
+.table-top-left { display: flex; align-items: center; gap: 10px; }
+.tt-icon {
+  width: 36px; height: 36px; border-radius: 10px;
+  background: rgba(37,117,252,0.12); border: 1px solid rgba(37,117,252,0.2);
+  display: flex; align-items: center; justify-content: center; font-size: 0.9rem;
+}
+.tt-title { font-size: 0.95rem; font-weight: 600; }
+.tt-sub { font-size: 0.75rem; color: var(--muted); margin-top: 2px; }
+.record-count {
+  font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em;
+  padding: 3px 10px; border-radius: 20px;
+  color: var(--muted); background: rgba(255,255,255,0.05); border: 1px solid var(--border2);
+}
+
+.overflow-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; }
+thead th {
+  padding: 10px 1.25rem; text-align: left;
+  font-size: 0.69rem; font-weight: 600; color: var(--muted);
+  text-transform: uppercase; letter-spacing: 0.08em;
+  border-bottom: 1px solid var(--border);
+  background: rgba(255,255,255,0.01);
+}
+tbody tr { border-bottom: 1px solid var(--border); transition: background 0.15s; }
+tbody tr:last-child { border-bottom: none; }
+tbody tr:hover { background: rgba(255,255,255,0.02); }
+tbody td { padding: 11px 1.25rem; font-size: 0.855rem; vertical-align: middle; }
+.td-url { font-family: monospace; font-size: 0.78rem; color: var(--muted); max-width: 320px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.td-ts { font-size: 0.78rem; color: var(--muted); white-space: nowrap; }
+
+/* VERDICT BADGES */
+.verdict-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 0.72rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.06em; padding: 3px 10px; border-radius: 20px; white-space: nowrap;
+}
+.verdict-badge.phishing { color: var(--red); background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.25); }
+.verdict-badge.safe { color: var(--green); background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.25); }
+.verdict-badge.suspicious { color: var(--yellow); background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.25); }
+
+.score-bar-wrap { display: flex; align-items: center; gap: 8px; }
+.score-bar { height: 4px; width: 64px; background: rgba(255,255,255,0.08); border-radius: 4px; }
+.score-fill { height: 100%; border-radius: 4px; background: var(--accent2); }
+
+.empty-state { padding: 4rem; text-align: center; color: var(--muted); }
+.empty-icon { font-size: 2.5rem; margin-bottom: 0.75rem; }
+.empty-text { font-size: 0.9rem; }
+</style>
+</head>
+<body>
+
+<nav class="navbar">
+  <a href="/dashboard" class="logo">
+    <span>🛡️</span>
+    <span class="logo-name">TrustCheck</span>
+  </a>
+  <div class="nav-right">
+    <a href="/dashboard" class="nav-link">Dashboard</a>
+    <a href="{{ url_for('logout') }}" class="nav-link">Logout</a>
+  </div>
+</nav>
+
+<div class="page">
+
+  <a href="{{ url_for('phishing_checker') }}" class="back-link">← Back to Phishing Checker</a>
+
+  <div class="page-header">
+    <div>
+      <div class="header-eyebrow">🔗 Scan Records</div>
+      <h1 class="page-title">Phishing URL <em>History</em></h1>
+    </div>
+    <div class="header-actions">
+      <a href="{{ url_for('dashboard') }}" class="btn btn-ghost">🏠 Dashboard</a>
+      <a href="{{ url_for('download_phishing_pdf') }}" class="btn btn-red">⬇ Download PDF</a>
+    </div>
+  </div>
+
+  <!-- SUMMARY -->
+  <div class="summary-row">
+    <div class="summary-pill">
+      <div class="sp-icon blue">🔗</div>
+      <div>
+        <div class="sp-val">{{ history | length }}</div>
+        <div class="sp-label">Total Scanned</div>
+      </div>
+    </div>
+    <div class="summary-pill">
+      <div class="sp-icon red">🚨</div>
+      <div>
+        <div class="sp-val">{{ history | selectattr('status', 'lower') | list | length if history else 0 }}</div>
+        <div class="sp-label">Phishing Detected</div>
+      </div>
+    </div>
+    <div class="summary-pill">
+      <div class="sp-icon green">✅</div>
+      <div>
+        <div class="sp-val">Safe</div>
+        <div class="sp-label">Verified Clean</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TABLE -->
+  <div class="table-card">
+    <div class="table-top">
+      <div class="table-top-left">
+        <div class="tt-icon">📜</div>
+        <div>
+          <div class="tt-title">URL Scan Log</div>
+          <div class="tt-sub">All previously checked URLs with verdicts</div>
+        </div>
+      </div>
+      <span class="record-count">{{ history | length }} records</span>
+    </div>
+
+    <div class="overflow-wrap">
+      {% if history %}
+      <table>
+        <thead>
+          <tr>
+            <th>URL</th>
+            <th>Verdict</th>
+            <th>Confidence</th>
+            <th>Timestamp</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for record in history %}
+          {% set is_phish = 'phish' in record.status.lower() or 'malicious' in record.status.lower() %}
+          {% set is_safe = 'safe' in record.status.lower() or 'legit' in record.status.lower() %}
+          <tr>
+            <td class="td-url" title="{{ record.url }}">{{ record.url }}</td>
+            <td>
+              <span class="verdict-badge {{ 'phishing' if is_phish else ('safe' if is_safe else 'suspicious') }}">
+                {{ '🚨' if is_phish else ('✅' if is_safe else '⚠️') }} {{ record.status }}
+              </span>
+            </td>
+            <td>
+              <div class="score-bar-wrap">
+                <div class="score-bar">
+                  <div class="score-fill" style="width: {{ record.confidence | replace('%','') | float | default(0) }}%"></div>
+                </div>
+                <span style="font-size:0.78rem;color:var(--muted)">{{ record.confidence }}</span>
+              </div>
+            </td>
+            <td class="td-ts">{{ record.created_at }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <div class="empty-state">
+        <div class="empty-icon">📭</div>
+        <div class="empty-text">No phishing scans recorded yet.</div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

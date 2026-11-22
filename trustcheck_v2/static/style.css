@@ -1,0 +1,49 @@
+:root {
+    --primary-bg: #0D1117;
+    --secondary-bg: #161B22;
+    --card-bg: #1F2933;
+    --accent-blue: #1F6FEB;
+    --accent-green: #39FF14;
+    --text-main: #C9D1D9;
+    --text-muted: #8B949E;
+    --border-color: #30363D;
+}
+
+
+/* Global */
+body {
+    background-color: var(--primary-bg);
+    color: var(--text-main);
+    font-family: 'Segoe UI', sans-serif;
+}
+
+/* Cards */
+.card {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 20px;
+}
+
+/* Buttons */
+.btn-primary {
+    background-color: var(--accent-blue);
+    border: none;
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #1557c0;
+}
+
+/* Safe text */
+.safe {
+    color: var(--accent-green);
+    font-weight: bold;
+}
+
+/* Danger text */
+.danger {
+    color: #ff4d4f;
+    font-weight: bold;
+}

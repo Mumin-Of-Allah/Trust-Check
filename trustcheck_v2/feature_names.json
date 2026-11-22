@@ -1,0 +1,1 @@
+["url_length", "has_ip", "has_at_symbol", "num_dots", "has_hyphen", "no_https", "path_length", "num_slashes", "num_query_params", "query_length", "keyword_count", "domain_length", "multi_subdomain", "digits_in_domain", "long_url_flag"]
